@@ -1,6 +1,6 @@
 class UserHistory {
-  constructor(userName) {
-    this.userName = userName;
+  constructor(userId) {
+    this.userId = userId;
     this.context = [];
   }
 
@@ -10,16 +10,16 @@ class UserHistory {
       content: content,
     });
 
-    if (this.context.length > 4) {
+    if (this.context.length > 10) {
       this.context.shift();
     }
   }
 
   getHistory() {
-		return this.context.map((message) => ({
-			role: message.role,
-			content: message.content,
-		}));
+    return this.context.map((message) => ({
+      role: message.role,
+      content: message.content,
+    }));
   }
 
   clearHistory() {
