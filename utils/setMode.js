@@ -1,4 +1,4 @@
-import UserHistory from './UserHistory.js';
+import UserHistory from '../UserHistory.js';
 
 export default function getOrCreateUser(users, userId) {
   if (!users.has(userId)) {

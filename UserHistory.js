@@ -4,10 +4,11 @@ class UserHistory {
     this.context = [];
   }
 
-  addMessage(content, role) {
+  addMessage(content, role, mode) {
     this.context.push({
       role: role,
       content: content,
+      mode: mode,
     });
 
     if (this.context.length > 10) {
@@ -15,11 +16,13 @@ class UserHistory {
     }
   }
 
-  getHistory() {
-    return this.context.map((message) => ({
-      role: message.role,
-      content: message.content,
-    }));
+  getHistory(mode) {
+    return this.context
+      .filter((message) => message.mode === mode)
+      .map((message) => ({
+        role: message.role,
+        content: message.content,
+      }));
   }
 
   clearHistory() {
