@@ -12,19 +12,32 @@ export default function botResponse(bot, users, userModes) {
 
     const user = setMode(users, userId);
     const mode = userModes.get(userId);
-    console.log('ТЕКУЩИЙ МОД' + mode);
+    console.log('ТЕКУЩИЙ МОД ' + mode);
     let reply = '';
 
-    if (mode) {
-      reply = await new ChatService(user, userText, mode).ask();
+    if (mode === 'quiz') {
+      const quiz = user.getQuiz();
+      reply = quiz.checkAnswer(userText);
+
+      if (quiz.Success) {
+        return bot.sendMessage(chatId, reply, {
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: '🔄 Вернуться в меню', callback_data: 'menu' }],
+            ],
+          },
+        });
+      }
+    } else if (mode === 'ask') {
+      reply = await new ChatService(user, userText, mode).askGigaChat();
     } else {
-      reply = 'Пожалуйста, выберите функцию через меню.';
+      reply = await new ChatService(user, userText, mode).ask();
     }
 
     user.addMessage(userText, 'user', mode);
     user.addMessage(reply, 'assistant', mode);
 
-    logs(user, userId);
+    // logs(user, userId);
 
     bot.sendMessage(chatId, reply);
   });

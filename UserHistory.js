@@ -1,33 +1,39 @@
 class UserHistory {
   constructor(userId) {
     this.userId = userId;
-    this.context = [];
+    this.contexts = new Map(); // ключ — mode, значение — массив сообщений
+    this.quiz = null;
+    this.fullAccess = false;
   }
 
   addMessage(content, role, mode) {
-    this.context.push({
-      role: role,
-      content: content,
-      mode: mode,
-    });
+    if (!this.contexts.has(mode)) {
+      this.contexts.set(mode, []);
+    }
 
-    if (this.context.length > 10) {
-      this.context.shift();
+    const history = this.contexts.get(mode);
+    history.push({ role, content });
+
+    if (history.length > 10) {
+      history.shift();
     }
   }
 
   getHistory(mode) {
-    return this.context
-      .filter((message) => message.mode === mode)
-      .map((message) => ({
-        role: message.role,
-        content: message.content,
-      }));
+    return this.contexts.get(mode) || [];
   }
 
   clearHistory() {
-    this.context = [];
+    this.contexts.clear();
+  }
+
+  setQuiz(quiz) {
+    this.quiz = quiz;
+  }
+
+  getQuiz() {
+    return this.quiz;
   }
 }
 
-export default UserHistory;
+export default UserHistory
