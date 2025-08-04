@@ -1,5 +1,4 @@
 import ChatService from './ChatService.js';
-import logs from './utils/logs.js';
 import setMode from './utils/setMode.js';
 
 export default function botResponse(bot, users, userModes) {
@@ -37,8 +36,6 @@ export default function botResponse(bot, users, userModes) {
     user.addMessage(userText, 'user', mode);
     user.addMessage(reply, 'assistant', mode);
 
-    // logs(user, userId);
-
-    bot.sendMessage(chatId, reply);
+    bot.sendMessage(chatId, reply, { parse_mode: 'Markdown' });
   });
 }

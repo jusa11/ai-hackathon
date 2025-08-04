@@ -7,8 +7,11 @@ import {
   NATAL_CHART_SET,
   PSYCHOLOGIST_SET,
   FULL_SET,
+  WELCOM_MESSAGE,
+  MAIN_MESSAGE,
 } from './config.js';
 import { setMessage } from './utils/setMessage.js';
+import textFormating from './utils/textFormating.js';
 const CLIENT_SECRET = process.env.GIGACHAT_CLIENT_SECRET;
 
 class ChatService {
@@ -22,9 +25,34 @@ class ChatService {
     });
   }
 
+  static async welcome(fullAccess) {
+    try {
+      const service = new GigaChat({
+        credentials: CLIENT_SECRET,
+        model: 'GigaChat',
+      });
+
+      const response = await service.chat({
+        messages: [
+          {
+            role: 'system',
+            content: fullAccess ? MAIN_MESSAGE : WELCOM_MESSAGE,
+          },
+        ],
+      });
+
+      return (
+        response.choices?.[0]?.message?.content ||
+        'Привет! Я Элис. Но пока что мне нельзя делать всё, что я умею...'
+      );
+    } catch (error) {
+      console.error('Ошибка welcome GigaChat:', error);
+      return 'Элис сейчас молчит... Попробуй снова позже.';
+    }
+  }
+
   ask = async () => {
     let systemPrompt;
-    console.log(this.mode);
     switch (this.mode) {
       case 'quotes':
         systemPrompt = JS_SET;
@@ -42,7 +70,6 @@ class ChatService {
     }
 
     const context = this.user.getHistory(this.mode); // 🟢 тут теперь актуальный
-    console.log(this.userText);
     return await setMessage(
       systemPrompt,
       this.userText,

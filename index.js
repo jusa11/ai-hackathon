@@ -14,7 +14,7 @@ const users = new Map();
 const userModes = new Map();
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 
-botStart(bot);
+botStart(bot, null, null, users);
 handlerBtn(bot, users, userModes);
 botResponse(bot, users, userModes);
 

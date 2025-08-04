@@ -19,7 +19,7 @@ const quizQuestion = [
     ],
     correctAnswer: 2,
   },
-  /* {
+/*   {
     question: 'Свойство функции обрабатывать данные разных типов называется:',
     options: [
       { text: 'Инкапсуляция', correct: false },

@@ -16,50 +16,69 @@ class Quiz {
   }
 
   getQuestion() {
-    // Возвращает текущий вопрос викторины в отформатированном виде
     if (this.quizState && this.quizState.questionIndex < quizQuestion.length) {
       const questionObj = quizQuestion[this.quizState.questionIndex];
       const questionNumber = this.quizState.questionIndex + 1;
 
-      const options = questionObj.options
-        .map((option, index) => `${index + 1}. ${option.text}`)
-        .join('\n');
+      const options = questionObj.options.map((option, index) => {
+        return [
+          { text: option.text, callback_data: `quiz_answer_${index + 1}` },
+        ];
+      });
 
-      return `Вопрос ${questionNumber}:\n${questionObj.question}\n\n${options}`;
+      const text = `Вопрос ${questionNumber}:\n${questionObj.question}`;
+
+      return {
+        text,
+        options,
+      };
     }
 
     return null;
   }
 
   checkAnswer(userAnswer) {
-    // Проверка ответа пользователя
     const currentQuestion = quizQuestion[this.quizState.questionIndex];
 
-    if (currentQuestion.correctAnswer === +userAnswer) {
+    if (currentQuestion.correctAnswer === +userAnswer - 1) {
       this.quizState.correctAnswers++;
       this.quizState.questionIndex++;
-
-      const nextQuestion = this.getQuestion();
 
       // Победа
       if (this.quizState.questionIndex === quizQuestion.length) {
         this.user.fullAccess = true;
         this.Success = true;
-        return `${this.getResult()}. Вы освободили Элис`;
+
+        return {
+          text: `${this.getResult()} Вы освободили Элис!`,
+          options: [[{ text: '🏠 Вернуться в меню', callback_data: 'menu' }]],
+        };
       }
 
+      const nextQuestion = this.getQuestion();
+
       if (nextQuestion) {
-        return 'Правильно! Следующий вопрос: ' + nextQuestion;
+        return {
+          text: 'Правильно! Следующий вопрос:\n\n' + nextQuestion.text,
+          options: nextQuestion.options,
+        };
       }
     } else {
       const resultMessage = `Неправильно! Попробуйте ещё раз. ${this.getResult()}`;
       this.reset();
-      return (
-        resultMessage +
-        '\n\nВикторина начинается заново:\n' +
-        this.getQuestion()
-      );
+
+      const newQuestion = this.getQuestion();
+
+      return {
+        text:
+          resultMessage +
+          '\n\nВикторина начинается заново:\n\n' +
+          newQuestion.text,
+        options: newQuestion.options,
+      };
     }
+
+    return null;
   }
 
   getResult() {

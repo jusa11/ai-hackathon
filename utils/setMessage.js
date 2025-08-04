@@ -1,3 +1,5 @@
+
+
 export const setMessage = async (
   systemPrompt,
   userPrompt = '',
@@ -6,7 +8,6 @@ export const setMessage = async (
   context
 ) => {
   try {
-		console.log(context);
     const response = await service.chat({
       messages: [
         {

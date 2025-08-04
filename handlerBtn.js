@@ -10,20 +10,22 @@ export default function handlerBtn(bot, users, userModes) {
     const chatId = callbackQuery.message.chat.id;
     const data = callbackQuery.data;
     const userId = callbackQuery.from.id;
-    const userText = callbackQuery.message.text;
 
     userModes.set(userId, data);
 
     const mode = userModes.get(userId);
     const user = setMode(users, userId);
 
-    // console.log('Текущий режим: ' + mode);
+    if (data === 'clear') {
+      const user = users.get(userId);
+      if (user) {
+        user.clearHistory();
+      }
 
-    /*  if (data === 'clear') {
-      new UserHistory(userId).clearHistory();
-      users.delete(userId);
       bot.sendMessage(chatId, 'История сообщений очищена.');
-    } */
+      return;
+    }
+
     if (data === 'quiz') {
       if (!users.has(userId)) {
         users.set(userId, new UserHistory(userId));
@@ -33,19 +35,53 @@ export default function handlerBtn(bot, users, userModes) {
       const quiz = new Quiz(user);
       quiz.startQuiz();
       user.setQuiz(quiz);
-      const reply = quiz.getQuestion();
+      const first = quiz.getQuestion();
 
-      console.log(reply);
-      bot.sendMessage(chatId, reply);
+      if (first) {
+        bot.sendMessage(chatId, first.text, {
+          reply_markup: {
+            parse_mode: 'Markdown',
+            inline_keyboard: first.options,
+          },
+        });
+      }
       return;
     }
     if (data === 'menu') {
-      botStart(bot, chatId, userId, users); // 👈 это покажет приветственное меню заново
+      botStart(bot, chatId, userId, users);
       return;
     }
     if (data === 'ask') {
-      const reply = await new ChatService(user, userText, mode).askGigaChat();
-      bot.sendMessage(chatId, reply);
+      bot.sendMessage(chatId, 'Введите ваш вопрос, и я постараюсь помочь!', {
+        parse_mode: 'Markdown',
+      });
+      return;
+    }
+    if (data.startsWith('quiz_answer_')) {
+      const user = users.get(userId);
+      const quiz = user.getQuiz();
+
+      if (!quiz) {
+        bot.sendMessage(
+          chatId,
+          'Викторина ещё не началась. Нажмите "Начать викторину".',
+          { parse_mode: 'Markdown' }
+        );
+        return;
+      }
+
+      const answer = parseInt(data.replace('quiz_answer_', ''));
+      const result = quiz.checkAnswer(answer);
+
+      if (result) {
+        await bot.sendMessage(chatId, result.text, {
+          reply_markup: {
+            inline_keyboard: result.options,
+          },
+        });
+      }
+
+      return;
     } else {
       if (!users.has(userId)) {
         users.set(userId, new UserHistory(userId));
