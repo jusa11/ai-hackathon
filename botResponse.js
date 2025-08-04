@@ -1,5 +1,4 @@
 import ChatService from './ChatService.js';
-import logs from './utils/logs.js';
 import setMode from './utils/setMode.js';
 
 export default function botResponse(bot, users, userModes) {
