@@ -19,7 +19,7 @@ const quizQuestion = [
     ],
     correctAnswer: 2,
   },
-/*   {
+  {
     question: 'Свойство функции обрабатывать данные разных типов называется:',
     options: [
       { text: 'Инкапсуляция', correct: false },
@@ -45,18 +45,18 @@ const quizQuestion = [
     options: [
       { text: 'IP-адрес отправителя и получателя', correct: true },
       { text: 'Информация о формате передаваемого файла', correct: false },
-      { text: 'Контрольная сумма байт', correct: true },
+      { text: 'MAC-адрес устройства', correct: true },
       { text: 'URL адрес запрашиваемого ресурса', correct: false },
     ],
     correctAnswer: 0,
   },
   {
-    question: 'Сколько бит в байте?',
+    question: 'Какое двоичное представление числа 143?',
     options: [
-      { text: '4', correct: false },
-      { text: '8', correct: true },
-      { text: '16', correct: false },
-      { text: '32', correct: false },
+      { text: '10101111', correct: false },
+      { text: '10001111', correct: true },
+      { text: '11110001', correct: false },
+      { text: '11011111', correct: false },
     ],
     correctAnswer: 1,
   },
@@ -69,7 +69,7 @@ const quizQuestion = [
       { text: 'Тип процессора', correct: false },
     ],
     correctAnswer: 0,
-  }, */
+  },
 ];
 
 export default quizQuestion;

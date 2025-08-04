@@ -11,7 +11,6 @@ export default function botResponse(bot, users, userModes) {
 
     const user = setMode(users, userId);
     const mode = userModes.get(userId);
-    console.log('ТЕКУЩИЙ МОД ' + mode);
     let reply = '';
 
     if (mode === 'quiz') {
