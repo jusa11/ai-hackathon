@@ -10,7 +10,7 @@ router = APIRouter()
 
 @router.post("/query/")
 def analytics_query(body: UserQuery, db: Session = Depends(get_db)):
-    df = analytics_service.get_employees_df(db)
+    df = analytics_service.get_employees_df(db, limit=None)
     llm_response = llm_service.askGiga(body.user_query)
     parsed = parse_llm.parse_llm_json(llm_response)
     return handle_query.handle_user_query(parsed, df)
