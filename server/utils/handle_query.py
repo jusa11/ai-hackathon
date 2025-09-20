@@ -4,18 +4,27 @@ from charts import metric_with_plot
 
 
 def handle_user_query(parsed: dict, df: pd.DataFrame) -> dict:
+    # Если LLM вернул ошибку
     if "error" in parsed:
         return parsed
 
-    metric = parsed.get("metric")
+    metric_name = parsed.get("metric")
     filters = parsed.get("filters", {})
 
-    func = METRICS.get(metric)
-    if not func:
-        return {"error": f"Метрика '{metric}' не найдена.", "raw": parsed}
+    # Получаем метрику из METRICS
+    meta = METRICS.get(metric_name)
+    if not meta:
+        return {"error": f"Метрика '{metric_name}' не найдена.", "raw": parsed}
 
-    # используем универсальную функцию
-    result_with_plot = metric_with_plot.get_metric_with_plot(
-        func, df, **filters)
+    # Берём функцию
+    func = meta["func"]
 
+    # Вызываем универсальную функцию для получения результата и графика
+    try:
+        result_with_plot = metric_with_plot.get_metric_with_plot(
+            func, df, **filters)
+    except Exception as e:
+        return {"error": f"Ошибка при вычислении метрики: {str(e)}"}
+
+    # Объединяем результат с исходным парсингом LLM
     return {**parsed, **result_with_plot}
