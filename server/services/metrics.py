@@ -7,7 +7,7 @@ METRICS = {
     "count-by-sex": {"func": analytics_service.get_count_by_sex, "title": "Количество сотрудников по полу", },
     "employee-count-by-department": {"func": analytics_service.get_employee_count_by_department, "has_plot": False, "title": "Количество сотрудников по департаментам", },
     "count-by-department-level": {"func": analytics_service.get_count_by_department_level, "has_plot": True, "type_chart": 'bar', "title": "Количество сотрудников в департаменте", },
-    "get-employees-by-region": {"func": analytics_service.get_employees_by_region, "has_plot": True, "type_chart": 'bar', "title": "Количество сотрудников по регионам", "big": True, },
+    "get-employees-by-region": {"func": analytics_service.get_employees_by_region, "has_plot": True, "type_chart": 'bar', "title": "Количество сотрудников по регионам",  "big": True,},
     "average-tenure-until-fire": {"func": analytics_service.get_average_tenure_until_fire, "has_plot": False, "title": "Средний срок работы до увольнения", },
     "average-experience-by-department": {"func": analytics_service.get_average_experience_by_department, "has_plot": True, "type_chart": 'bar', "title": "Средний опыт сотрудников в департаменте", },
     "average-fte-by-department": {"func": analytics_service.get_average_fte_by_department, "has_plot": True, "type_chart": 'bar', "title": "Средний FTE в департаменте", },
