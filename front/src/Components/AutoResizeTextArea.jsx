@@ -1,25 +1,21 @@
-import { useRef, useState } from 'react';
+import { useRef, useEffect } from 'react';
 
-const AutoResizeTextarea = ({ maxHeight = 200 }) => {
-  const [value, setValue] = useState('');
+const AutoResizeTextarea = ({ value, onChange, maxHeight = 200 }) => {
   const textareaRef = useRef(null);
 
-  const handleChange = (e) => {
+  useEffect(() => {
     const textarea = textareaRef.current;
-    setValue(e.target.value);
-		console.log(textareaRef);
-
     if (textarea) {
-      textarea.style.height = 'auto'; // сброс
+      textarea.style.height = 'auto'; 
       textarea.style.height = `${Math.min(textarea.scrollHeight, maxHeight)}px`;
     }
-  };
+  }, [value, maxHeight]);
 
   return (
     <textarea
       ref={textareaRef}
       value={value}
-      onChange={handleChange}
+      onChange={onChange}
       placeholder="Введите ваш вопрос"
       className="border rounded-3xl w-full p-3 pr-16 resize-none 
                  focus:outline-none focus:ring-0 overflow-hidden"

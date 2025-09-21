@@ -1,5 +1,5 @@
 from charts import create_plot
-from services import metrics  # METRICS
+from services import metrics  
 
 
 def get_metric_with_plot(func, df, metric_name=None, **filters):
@@ -11,7 +11,6 @@ def get_metric_with_plot(func, df, metric_name=None, **filters):
     except TypeError:
         result = func(df)
 
-    # Получаем title из METRICS, если metric_name передан
     title = None
     type_chart = None
     if metric_name:

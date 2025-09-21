@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import io
 import base64
 import matplotlib
-matplotlib.use("Agg")  # backend для рендера без GUI
+matplotlib.use("Agg")  
 
 
 def plot_metric(result: dict, title="График", kind="bar") -> str:

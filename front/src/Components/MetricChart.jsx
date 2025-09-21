@@ -10,7 +10,6 @@ import {
 } from 'chart.js';
 import { Bar, Pie } from 'react-chartjs-2';
 
-// Регистрируем компоненты Chart.js
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -22,8 +21,13 @@ ChartJS.register(
 );
 
 const MetricChart = ({ data, big }) => {
-  const labels = Object.keys(data.result || {});
-  const values = Object.values(data.result || {});
+
+  const MAX_ITEMS = 20;
+  const fullLabels = Object.keys(data.result || {});
+  const fullValues = Object.values(data.result || {});
+
+  const labels = fullLabels.slice(0, MAX_ITEMS);
+  const values = fullValues.slice(0, MAX_ITEMS);
 
   const chartData = {
     labels,
@@ -46,32 +50,25 @@ const MetricChart = ({ data, big }) => {
 
   const options = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        mode: 'index',
-        intersect: false,
-      },
+      legend: { display: false },
+      tooltip: { mode: 'index', intersect: false },
     },
     scales: {
       x: {
         ticks: {
-          callback: function (value) {
-            const label = this.getLabelForValue(value);
+          callback: (val, index) => {
+            const label = labels[index];
             return label.length > 5 ? label.substr(0, 5) + '...' : label;
           },
+          /* maxRotation: big ? 45 : 0,
+          minRotation: big ? 45 : 0, */
         },
       },
+      y: { beginAtZero: true },
     },
   };
-
-  // Для больших графиков можно добавить padding или изменить размеры шрифта
-  if (big) {
-    options.plugins.tooltip.titleFont = { size: 16 };
-    options.plugins.tooltip.bodyFont = { size: 14 };
-  }
 
   return data.type_chart === 'pie' ? (
     <Pie data={chartData} options={options} />
