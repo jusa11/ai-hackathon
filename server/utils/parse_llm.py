@@ -1,7 +1,11 @@
 import re
 import json
 
+
 def parse_llm_json(llm_response: str) -> dict:
+    # заменяем “ ” на обычные "
+    llm_response = llm_response.replace("“", '"').replace("”", '"')
+
     matches = re.findall(r"```json\s*(\{.*?\})\s*```", llm_response, re.DOTALL)
     if matches:
         json_str = matches[0]

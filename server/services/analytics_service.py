@@ -1,4 +1,5 @@
 import pandas as pd
+import random
 import crud
 
 # --- функции аналитики ---
@@ -12,7 +13,7 @@ def get_employees_df(db, limit: int | None = 100):
 
 
 # Средний опыт
-def get_average_experiance(df: pd.DataFrame) -> float:
+def get_average_experience(df: pd.DataFrame) -> float:
     if "experience" not in df.columns:
         return 0.0
     return df["experience"].mean()
@@ -21,55 +22,43 @@ def get_average_experiance(df: pd.DataFrame) -> float:
 
 
 def get_average_fullyears(df: pd.DataFrame) -> float:
-    if "experience" not in df.columns:
+    if "fullyears" not in df.columns:
         return 0.0
     return df["fullyears"].mean()
 
 # Количество сотрудников по полу
 
 
-def get_count_by_sex(df: pd.DataFrame, sex: str = None) -> int:
+def get_count_by_sex(df: pd.DataFrame) -> dict:
+    """
+    Возвращает количество сотрудников по полу в формате {'M': ..., 'F': ...}.
+    """
     if "sex" not in df.columns:
-        return 0
-    if sex:
-        return len(df[df["sex"].str.upper() == sex.upper()])
-    return len(df["sex"])
+        return {"M": 0, "F": 0}
+
+    counts = df["sex"].str.upper().value_counts()
+    return {
+        "M": int(counts.get("M", 0)),
+        "F": int(counts.get("F", 0))
+    }
 
 
-def get_employee_count_by_department(
-    df: pd.DataFrame,
-    department_3: str | None = None,
-    department_4: str | None = None,
-    department_5: str | None = None,
-    department_6: str | None = None
-) -> int:
-    # Проверяем, что все колонки есть в DataFrame
-    required_cols = ["department_3", "department_4",
-                     "department_5", "department_6"]
-    if not all(col in df.columns for col in required_cols):
-        return 0
-
-    # Применяем фильтры по переданным департаментам
-    if department_3:
-        df = df[df["department_3"] == department_3]
-    if department_4:
-        df = df[df["department_4"] == department_4]
-    if department_5:
-        df = df[df["department_5"] == department_5]
-    if department_6:
-        df = df[df["department_6"] == department_6]
-
-    return len(df)
-
-
-def get_count_by_department_level(df: pd.DataFrame, level: str) -> dict:
+def get_count_by_department_level(df: pd.DataFrame, level: str | None = None) -> dict:
     """
     Считает количество сотрудников по каждому уникальному значению выбранного уровня департамента.
-
-    level: "department_3", "department_4", "department_5", "department_6"
+    Если level не передан, выбирается случайный из доступных: department_3..6.
     """
+    available_levels = ["department_3",
+                        "department_4", "department_5", "department_6"]
+
+    # Если level не передан или некорректный — выбираем случайный
+    if not level or level not in available_levels:
+        level = random.choice(
+            [col for col in available_levels if col in df.columns])
+
     if level not in df.columns:
         return {}
+
     return df[level].value_counts().to_dict()
 
 
@@ -104,7 +93,7 @@ def get_average_tenure_until_fire(df: pd.DataFrame, unit: str = "years") -> floa
         return round((tenure_days.mean() / 30), 0)
     elif unit == "years":
         return round((tenure_days.mean() / 365), 0)
-    return round(tenure_days.mean(), 0)  
+    return round(tenure_days.mean(), 0)
 
 
 def get_average_experience_by_department(
@@ -133,14 +122,22 @@ def get_average_experience_by_department(
     return df.groupby(level)["experience"].mean().round(2).to_dict()
 
 
-def get_average_fte_by_department(df: pd.DataFrame, level: str) -> dict:
+def get_average_fte_by_department(df: pd.DataFrame, level: str = None) -> dict:
     """
     Считает средний FTE по выбранному уровню департамента.
-
-    level: "department_3", "department_4", "department_5", "department_6"
+    Если level не передан — выбирает случайный уровень.
     """
+    possible_levels = ["department_3", "department_4",
+                       "department_5", "department_6"]
+
+    # Если level не передан или некорректный — берём случайный
+    if level not in possible_levels:
+        level = random.choice(possible_levels)
+
     if "fte" not in df.columns or level not in df.columns:
         return {}
+    print("Используемый level:", level)
+    print(df[level].unique())
 
     return df.groupby(level)["fte"].mean().round(2).to_dict()
 
@@ -232,10 +229,8 @@ def get_turnover_rate_by_month(df: pd.DataFrame, months: list[int] | None = None
     if df_filtered.empty:
         return 0.0
 
-  
     total_fired = df_filtered["firecount"].sum()
 
-    
     avg_employees = df_filtered.groupby(
         df_filtered["report_date"].dt.to_period("M")).size().mean()
 
@@ -247,56 +242,43 @@ def get_turnover_rate_by_month(df: pd.DataFrame, months: list[int] | None = None
 
 def get_turnover_rate_by_department(
     df: pd.DataFrame,
-    department_3: str | None = None,
-    department_4: str | None = None,
-    department_5: str | None = None,
-    department_6: str | None = None,
+    department: str,
     month: int | None = None
-) -> float:
+) -> dict:
     """
-    Текучесть по выбранной иерархии департаментов и месяцу.
-    Если департамент не указан — учитываем всех.
-    Если month не указан — по умолчанию считаем за июль-сентябрь.
+    Текучесть по всем департаментам указанного уровня (department_3..6).
+    Если month не указан — считаем за июль-сентябрь.
     """
     required_cols = ["firecount", "report_date", "department_3",
                      "department_4", "department_5", "department_6"]
     if not all(col in df.columns for col in required_cols):
-        return 0.0
+        return {}
+
+    if department not in ["department_3", "department_4", "department_5", "department_6"]:
+        return {}
 
     df_filtered = df.copy()
 
-    # Фильтруем по департаментам
-    if department_3:
-        df_filtered = df_filtered[df_filtered["department_3"] == department_3]
-    if department_4:
-        df_filtered = df_filtered[df_filtered["department_4"] == department_4]
-    if department_5:
-        df_filtered = df_filtered[df_filtered["department_5"] == department_5]
-    if department_6:
-        df_filtered = df_filtered[df_filtered["department_6"] == department_6]
-
-    # Фильтруем по месяцу
+    # фильтр по месяцу
     if month:
         df_filtered = df_filtered[df_filtered["report_date"].dt.month == month]
     else:
-        # если month не указан — берём июль, август, сентябрь
-        df_filtered = df_filtered[df_filtered["report_date"].dt.month.isin([
-                                                                           7, 8, 9])]
+        df_filtered = df_filtered[df_filtered["report_date"].dt.month.isin([7, 8, 9])]
 
     if df_filtered.empty:
-        return 0.0
+        return {}
 
-    # Суммарное количество увольнений
-    total_fired = df_filtered["firecount"].sum()
+    result = {}
+    for dep_name, group in df_filtered.groupby(department):
+        total_fired = group["firecount"].sum()
+        avg_employees = group.groupby(group["report_date"].dt.to_period("M")).size().mean()
 
-    # Среднесписочная численность по выбранной группе
-    avg_employees = df_filtered.groupby(
-        df_filtered["report_date"].dt.to_period("M")).size().mean()
+        if avg_employees > 0:
+            result[dep_name] = round((total_fired / avg_employees) * 100, 2)
+        else:
+            result[dep_name] = 0.0
 
-    if avg_employees == 0:
-        return 0.0
-
-    return round((total_fired / avg_employees) * 100, 2)
+    return result
 
 
 def get_hires_and_fires_share_by_department(

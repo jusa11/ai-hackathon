@@ -1,20 +1,32 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import FormQuery from './FormQuery';
 import MetricCard from './MetricCard';
+import MetricChart from './MetricChart';
+import ChatWithLLM from './ChatWithLLM';
 
 const Content = () => {
   const [metrics, setMetrics] = useState([]);
   const [bigMetric, setBigMetric] = useState(null);
-  const [llmResponse, setLlmResponse] = useState("Привет!");
+  const [isChat, setIsChat] = useState(false);
+  const [chatHistory, setChatHistory] = useState([
+    {
+      id: 1,
+      type: 'bot',
+      text: 'Привет! Я ваш HR-бот. Задайте вопрос о метриках сотрудников.',
+      result: null,
+      type_chart: null,
+    },
+  ]);
 
+  const contentRef = useRef(null);
+
+  // Загружаем обычные и big метрики
   const loadMetrics = async () => {
     try {
-      // Обычные метрики
       const res = await axios.get('http://localhost:8000/metric/random');
       setMetrics(res.data);
 
-      // Big-метрика
       const bigRes = await axios.get('http://localhost:8000/metric/big');
       setBigMetric(bigRes.data);
     } catch (error) {
@@ -26,38 +38,66 @@ const Content = () => {
     loadMetrics();
   }, []);
 
-	useEffect(()=> {
-		console.log(llmResponse);
-	}, [])
+  // Автопрокрутка вниз при добавлении нового сообщения
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.scrollTop = contentRef.current.scrollHeight;
+    }
+  }, [chatHistory]);
+
+  const handleChat = () => {
+    isChat ? setIsChat(false) : setIsChat(true);
+    console.log(isChat);
+  };
 
   return (
-    <main className="p-4 flex flex-col h-screen">
-      {/* Метрики */}
-      <div className="flex-1 flex flex-col gap-4">
-        <div className="flex-1 grid grid-cols-3 gap-4">
-          {metrics &&
-            metrics.map((metric, index) => (
+    <div className="relative flex-1 flex flex-col h-full overflow-hidden">
+      {/* Контент с прокруткой */}
+      <main ref={contentRef} className="flex-1 flex flex-col p-4 overflow-auto">
+        {/* Метрики */}
+        <div className={`${isChat ? 'hidden' : 'flex flex-col gap-4'}`}>
+          <div className="grid grid-cols-3 gap-4">
+            {metrics.map((metric, index) => (
               <MetricCard metric={metric} big={false} key={index} />
             ))}
+          </div>
+
+          {bigMetric && (
+            <div className="mt-6 grid grid-cols-1 rounded-3xl">
+              <MetricCard metric={bigMetric[0]} big={true} />
+            </div>
+          )}
         </div>
 
-        {bigMetric && (
-          <div className="flex-1 mt-6 grid grid-cols-1 rounded-3xl">
-            <MetricCard metric={bigMetric[0]} big={true} />
-          </div>
-        )}
-      </div>
+        <ChatWithLLM
+          chatHistory={chatHistory}
+          isChat={isChat}
+          setIsChat={setIsChat}
+        />
+      </main>
 
-      {/* Блок с ответом от LLM */}
-      <div className="h-[10%] bg-gray-100 p-4 rounded mt-4 overflow-auto">
-        {JSON.stringify(llmResponse, null, 2)}
-      </div>
+      <button
+        className={`${
+          isChat ? 'hidden' : 'w-full bg-blue-700 text-white py-2 '
+        }`}
+        onClick={handleChat}
+      >
+        Открыть чат
+      </button>
 
-      
-      <div className="mx-auto min-w-0 mt-2">
-        <FormQuery setLlmResponse={setLlmResponse} />
+      {/* Форма ввода — всегда внизу поверх переписки */}
+      <div
+        className={`${
+          isChat
+            ? 'fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-[600px] z-20'
+            : 'hidden'
+        }`}
+      >
+        <FormQuery
+          addMessage={(msg) => setChatHistory((prev) => [...prev, msg])}
+        />
       </div>
-    </main>
+    </div>
   );
 };
 

@@ -21,6 +21,7 @@ ChartJS.register(
 );
 
 const MetricChart = ({ data, big }) => {
+	console.log(data);
 
   const MAX_ITEMS = 20;
   const fullLabels = Object.keys(data.result || {});

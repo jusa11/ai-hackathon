@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import Query
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -12,7 +13,7 @@ router = APIRouter()
 @router.get("/average-experience/")
 def average_experience(db: Session = Depends(get_db)):
     df = analytics_service.get_employees_df(db, limit=None)
-    return {"result": analytics_service.get_average_experiance(df)}
+    return {"result": analytics_service.get_average_experience(df)}
 
 # Общее количество сотрудников
 
@@ -35,34 +36,16 @@ def average_fullyears(db: Session = Depends(get_db)):
 
 
 @router.get("/count-by-sex")
-def count_by_sex(sex: str | None, db: Session = Depends(get_db)):
+def count_by_sex(db: Session = Depends(get_db)):
     df = analytics_service.get_employees_df(db, limit=None)
-    return {"result": analytics_service.get_count_by_sex(df, sex=sex)}
-
-
-@router.get("/employee-count-by-department")
-def employee_count_by_department(
-    department_3: str | None = Query(None),
-    department_4: str | None = Query(None),
-    department_5: str | None = Query(None),
-    department_6: str | None = Query(None),
-    db: Session = Depends(get_db)
-):
-    df = analytics_service.get_employees_df(db, limit=None)
-    count = analytics_service.get_employee_count_by_department(
-        df,
-        department_3=department_3,
-        department_4=department_4,
-        department_5=department_5,
-        department_6=department_6
-    )
-    return {"result": count}
+    return {"result": analytics_service.get_count_by_sex(df)}
 
 
 @router.get("/employee-count-by-department-level/")
 def employee_count_by_department_level(
-    level: str = Query(...,
-                       description="Уровень департамента: department_3/4/5/6"),
+    level: Optional[str] = Query(
+        None, description="Уровень департамента: department_3/4/5/6"
+    ),
     db: Session = Depends(get_db)
 ):
     df = analytics_service.get_employees_df(db, limit=None)
@@ -94,7 +77,10 @@ def average_experience_by_department(
 
 
 @router.get("/average-fte-by-department")
-def average_fte_by_department(level: str, db: Session = Depends(get_db)):
+def average_fte_by_department(
+    level: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
+):
     df = analytics_service.get_employees_df(db, limit=None)
     return {"result": analytics_service.get_average_fte_by_department(df, level)}
 
@@ -147,23 +133,17 @@ def turnover_rate_endpoint(months: str | None = None, db: Session = Depends(get_
 
 @router.get("/turnover-by-department")
 def turnover_by_department(
-    department_3: str | None = None,
-    department_4: str | None = None,
-    department_5: str | None = None,
-    department_6: str | None = None,
+    department: str = Query(..., description="Уровень: department_3, department_4, department_5 или department_6"),
     month: int | None = Query(None, ge=1, le=12),
     db: Session = Depends(get_db)
 ):
     df = analytics_service.get_employees_df(db, limit=None)
     result = analytics_service.get_turnover_rate_by_department(
         df,
-        department_3=department_3,
-        department_4=department_4,
-        department_5=department_5,
-        department_6=department_6,
+        department=department,
         month=month
     )
-    return {"result": result}
+    return {"department": department, "result": result}
 
 
 @router.get("/hires-and-fires-share")
