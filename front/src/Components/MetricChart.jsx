@@ -21,8 +21,6 @@ ChartJS.register(
 );
 
 const MetricChart = ({ data, big }) => {
-	console.log(data);
-
   const MAX_ITEMS = 20;
   const fullLabels = Object.keys(data.result || {});
   const fullValues = Object.values(data.result || {});
@@ -63,8 +61,6 @@ const MetricChart = ({ data, big }) => {
             const label = labels[index];
             return label.length > 5 ? label.substr(0, 5) + '...' : label;
           },
-          /* maxRotation: big ? 45 : 0,
-          minRotation: big ? 45 : 0, */
         },
       },
       y: { beginAtZero: true },

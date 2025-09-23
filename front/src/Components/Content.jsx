@@ -2,13 +2,15 @@ import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import FormQuery from './FormQuery';
 import MetricCard from './MetricCard';
-import MetricChart from './MetricChart';
 import ChatWithLLM from './ChatWithLLM';
 
 const Content = () => {
   const [metrics, setMetrics] = useState([]);
   const [bigMetric, setBigMetric] = useState(null);
   const [isChat, setIsChat] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [metricIsLoading, setMetricIsLoading] = useState(false);
+  const [bigMetricIsLoading, setBigMetricIsLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState([
     {
       id: 1,
@@ -21,15 +23,19 @@ const Content = () => {
 
   const contentRef = useRef(null);
 
-  // Загружаем обычные и big метрики
   const loadMetrics = async () => {
+    setMetricIsLoading(true);
+    setBigMetricIsLoading(true);
     try {
       const res = await axios.get('http://localhost:8000/metric/random');
       setMetrics(res.data);
+      setMetricIsLoading(false);
 
       const bigRes = await axios.get('http://localhost:8000/metric/big');
       setBigMetric(bigRes.data);
+      setBigMetricIsLoading(false);
     } catch (error) {
+      setMetricIsLoading(false);
       console.error(`Ошибка при получении метрик: ${error}`);
     }
   };
@@ -38,7 +44,7 @@ const Content = () => {
     loadMetrics();
   }, []);
 
-  // Автопрокрутка вниз при добавлении нового сообщения
+  // Автопрокрутка вниз
   useEffect(() => {
     if (contentRef.current) {
       contentRef.current.scrollTop = contentRef.current.scrollHeight;
@@ -47,25 +53,34 @@ const Content = () => {
 
   const handleChat = () => {
     isChat ? setIsChat(false) : setIsChat(true);
-    console.log(isChat);
   };
 
   return (
     <div className="relative flex-1 flex flex-col h-full overflow-hidden">
-      {/* Контент с прокруткой */}
       <main ref={contentRef} className="flex-1 flex flex-col p-4 overflow-auto">
-        {/* Метрики */}
         <div className={`${isChat ? 'hidden' : 'flex flex-col gap-4'}`}>
           <div className="grid grid-cols-3 gap-4">
-            {metrics.map((metric, index) => (
-              <MetricCard metric={metric} big={false} key={index} />
-            ))}
+            {metricIsLoading
+              ? Array.from({ length: 3 }).map((_, i) => (
+                  <MetricCard key={i} isLoading={metricIsLoading} />
+                ))
+              : metrics.map((metric, index) => (
+                  <MetricCard metric={metric} big={false} key={index} />
+                ))}
           </div>
 
-          {bigMetric && (
-            <div className="mt-6 grid grid-cols-1 rounded-3xl">
-              <MetricCard metric={bigMetric[0]} big={true} />
-            </div>
+          {bigMetricIsLoading ? (
+            <MetricCard isLoading={bigMetricIsLoading} />
+          ) : (
+            bigMetric && (
+              <div className="mt-6 grid grid-cols-1 rounded-3xl">
+                <MetricCard
+                  metric={bigMetric[0]}
+                  big={true}
+                  metricIsLoading={metricIsLoading}
+                />
+              </div>
+            )
           )}
         </div>
 
@@ -73,19 +88,21 @@ const Content = () => {
           chatHistory={chatHistory}
           isChat={isChat}
           setIsChat={setIsChat}
+          isLoading={isLoading}
         />
       </main>
 
       <button
         className={`${
-          isChat ? 'hidden' : 'w-full bg-blue-700 text-white py-2 '
+          isChat
+            ? 'hidden'
+            : 'w-full py-3 font-medium text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300'
         }`}
         onClick={handleChat}
       >
-        Открыть чат
+        🚀 Открыть чат с AI
       </button>
 
-      {/* Форма ввода — всегда внизу поверх переписки */}
       <div
         className={`${
           isChat
@@ -95,6 +112,7 @@ const Content = () => {
       >
         <FormQuery
           addMessage={(msg) => setChatHistory((prev) => [...prev, msg])}
+          setIsLoading={setIsLoading}
         />
       </div>
     </div>

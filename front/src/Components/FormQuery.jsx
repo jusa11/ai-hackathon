@@ -2,7 +2,7 @@ import { useState } from 'react';
 import AutoResizeTextarea from './AutoResizeTextArea';
 import axios from 'axios';
 
-const FormQuery = ({ addMessage }) => {
+const FormQuery = ({ addMessage, setIsLoading }) => {
   const [query, setQuery] = useState('');
 
   const handleSubmit = async (e) => {
@@ -10,19 +10,23 @@ const FormQuery = ({ addMessage }) => {
     setQuery('');
     if (!query.trim()) return;
 
-    // Добавляем сообщение пользователя
     const userMessage = {
       id: Date.now(),
       type: 'user',
       text: query,
       metricResult: null,
+      isLoading: true,
     };
     addMessage(userMessage);
+
+    setIsLoading(true);
 
     try {
       const res = await axios.post('http://localhost:8000/llm/query', {
         user_query: query,
       });
+
+      // const res = await axios.get('http://localhost:8000/metric/random');
 
       const botMessage = {
         id: Date.now() + 1,
@@ -31,16 +35,20 @@ const FormQuery = ({ addMessage }) => {
         result: res.data.result,
         type_chart: res.data.type_chart,
         hasPlot: res.data.has_plot,
+        isLoading: false,
       };
       addMessage(botMessage);
+      setIsLoading(false);
     } catch (error) {
       console.error(error);
+      setIsLoading(false);
       addMessage({
         id: Date.now() + 2,
         type: 'bot',
         text: 'Ошибка при запросе к LLM',
         metricResult: null,
         chartData: null,
+        isLoading: false,
       });
     }
   };
