@@ -1,11 +1,8 @@
-from charts import create_plot
 from services import metrics
 
 
 def get_metric_with_plot(func, df, metric_name=None, **filters):
-    """
-    Вызывает метрику, строит график (если можно) и возвращает result, title и флаги.
-    """
+
     try:
         result = func(df, **filters)
     except TypeError:

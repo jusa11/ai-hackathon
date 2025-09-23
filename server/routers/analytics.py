@@ -29,7 +29,7 @@ def total_employees(month: int | None = Query(None, ge=1, le=12), db: Session = 
 # Средний возраст
 
 
-@router.get("/average-fullyears/")
+@router.get("/average-age/")
 def average_fullyears(db: Session = Depends(get_db)):
     df = analytics_service.get_employees_df(db, limit=None)
     return {"result": analytics_service.get_average_fullyears(df)}
@@ -55,12 +55,12 @@ def employee_count_by_department_level(
 
 @router.get("/employees-by-region/")
 def employees_by_region(db: Session = Depends(get_db)):
-    df = analytics_service.get_employees_df(db)
+    df = analytics_service.get_employees_df(db, limit=None)
     return {"result": analytics_service.get_employees_by_region(df)}
 
 
 @router.get("/average-tenure-until-fire")
-def average_tenure_until_fire(unit: str = "years", db: Session = Depends(get_db)):
+def average_tenure_until_fire(unit: str = "months", db: Session = Depends(get_db)):
     df = analytics_service.get_employees_df(db, limit=None)
     return {"result": analytics_service.get_average_tenure_until_fire(df, unit)}
 
@@ -133,7 +133,8 @@ def turnover_rate_endpoint(months: str | None = None, db: Session = Depends(get_
 
 @router.get("/turnover-by-department")
 def turnover_by_department(
-    department: str = Query(..., description="Уровень: department_3, department_4, department_5 или department_6"),
+    department: str = Query(
+        ..., description="Уровень: department_3, department_4, department_5 или department_6"),
     month: int | None = Query(None, ge=1, le=12),
     db: Session = Depends(get_db)
 ):

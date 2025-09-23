@@ -68,7 +68,7 @@ def get_employees_by_region(df: pd.DataFrame) -> dict:
     return df["region"].value_counts().to_dict()
 
 
-def get_average_tenure_until_fire(df: pd.DataFrame, unit: str = "years") -> float:
+def get_average_tenure_until_fire(df: pd.DataFrame, unit: str = "months") -> float:
     """
     Средний срок работы до увольнения.
 

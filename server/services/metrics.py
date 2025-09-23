@@ -27,14 +27,14 @@ METRICS = {
         "description": "Считает количество мужчин и женщин в компании"
     },
 
-    "count-by-department-level": {
+    "employee-count-by-department-level": {
         "func": analytics_service.get_count_by_department_level,
         "has_plot": True,
         "type_chart": 'bar',
         "title": "Количество сотрудников в департаменте",
         "description": "Показывает распределение сотрудников по уровням департамента"
     },
-    "get-employees-by-region": {
+    "employees-by-region": {
         "func": analytics_service.get_employees_by_region,
         "has_plot": True,
         "type_chart": 'bar',
