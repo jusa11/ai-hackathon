@@ -13,5 +13,4 @@ def analytics_query(body: UserQuery, db: Session = Depends(get_db)):
     df = analytics_service.get_employees_df(db, limit=None)
     llm_response = llm_service.askGiga(body.user_query)
     parsed = parse_llm.parse_llm_json(llm_response)
-    print(handle_query.handle_user_query(parsed, df, body.user_query))
     return handle_query.handle_user_query(parsed, df, body.user_query)

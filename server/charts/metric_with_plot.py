@@ -15,12 +15,12 @@ def get_metric_with_plot(func, df, metric_name=None, **filters):
     if metric_name:
         meta = metrics.METRICS.get(metric_name, {})
         title = meta.get("title", metric_name)
-        type_chart = meta.get("type_chart")  # либо None, либо 'bar'/'pie'
+        type_chart = meta.get("type_chart")  
         has_plot = meta.get("has_plot", False)
 
     return {
         "result": result,
         "title": title,
-        "type_chart": type_chart,  # можно использовать для выбора компонента графика
-        "has_plot": has_plot,      # именно True/False
+        "type_chart": type_chart,  
+        "has_plot": has_plot,     
     }

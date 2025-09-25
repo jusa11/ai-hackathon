@@ -12,7 +12,7 @@ def generate_comment(user_query: str, metric: str, result: dict) -> str:
     """
     Генерирует короткий комментарий от LLM по результатам метрики
     """
-    # Преобразуем результат в читаемый вид для LLM
+   
     result_str = "\n".join([f"{k}: {v}" for k, v in result.items()]) if isinstance(
         result, dict) else str(result)
 

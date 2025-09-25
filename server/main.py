@@ -1,8 +1,9 @@
+from routers import analytics, employees, llm, plots
+from database import engine
+import models
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
-import models
-from database import engine
-from routers import analytics, employees, llm, plots
+
 
 # --- БД ---
 models.Base.metadata.create_all(bind=engine)

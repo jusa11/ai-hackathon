@@ -4,6 +4,7 @@ import MetricChart from './MetricChart';
 const ChatWithLLM = ({ chatHistory, isChat, setIsChat, isLoading }) => {
   const messagesEndRef = useRef(null);
 
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory]);

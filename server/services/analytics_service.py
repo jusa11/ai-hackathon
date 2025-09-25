@@ -1,6 +1,8 @@
 import pandas as pd
 import random
 import crud
+from utils.apply_filters_and_timeframe import apply_filters_and_timeframe
+
 
 # --- функции аналитики ---
 
@@ -136,8 +138,7 @@ def get_average_fte_by_department(df: pd.DataFrame, level: str = None) -> dict:
 
     if "fte" not in df.columns or level not in df.columns:
         return {}
-    print("Используемый level:", level)
-    print(df[level].unique())
+    
 
     return df.groupby(level)["fte"].mean().round(2).to_dict()
 
@@ -263,7 +264,8 @@ def get_turnover_rate_by_department(
     if month:
         df_filtered = df_filtered[df_filtered["report_date"].dt.month == month]
     else:
-        df_filtered = df_filtered[df_filtered["report_date"].dt.month.isin([7, 8, 9])]
+        df_filtered = df_filtered[df_filtered["report_date"].dt.month.isin([
+                                                                           7, 8, 9])]
 
     if df_filtered.empty:
         return {}
@@ -271,7 +273,8 @@ def get_turnover_rate_by_department(
     result = {}
     for dep_name, group in df_filtered.groupby(department):
         total_fired = group["firecount"].sum()
-        avg_employees = group.groupby(group["report_date"].dt.to_period("M")).size().mean()
+        avg_employees = group.groupby(
+            group["report_date"].dt.to_period("M")).size().mean()
 
         if avg_employees > 0:
             result[dep_name] = round((total_fired / avg_employees) * 100, 2)
@@ -433,23 +436,17 @@ def get_average_fte_by_work_form(df: pd.DataFrame, month: int | None = None) -> 
     return {"remote": remote_avg, "office": office_avg}
 
 
-def get_turnover_rate_by_age_category(df: pd.DataFrame, month: int | None = None) -> dict:
+def get_turnover_rate_by_age_category(df: pd.DataFrame, filters: dict = {}, timeframe: dict = {}) -> dict:
     """
-    Текучесть по возрастным категориям.
-    month: если указан — только за этот месяц, иначе — июль-сентябрь.
+    Текучесть по возрастным категориям с учётом фильтров и периода.
+
+    filters: {"department_3": "Department-98", "service": "Крауд", ...}
+    timeframe: {"month": 8} или {"months": [7,8,9]} или {"start": "YYYY-MM-DD", "end": "YYYY-MM-DD"}
     """
+    df_filtered = apply_filters_and_timeframe(df, filters, timeframe)
     required_cols = ["firecount", "report_date", "age_category"]
     if not all(col in df.columns for col in required_cols):
         return {}
-
-    df_filtered = df.copy()
-
-    # Фильтр по месяцу
-    if month:
-        df_filtered = df_filtered[df_filtered["report_date"].dt.month == month]
-    else:
-        df_filtered = df_filtered[df_filtered["report_date"].dt.month.isin([
-                                                                           7, 8, 9])]
 
     if df_filtered.empty:
         return {}

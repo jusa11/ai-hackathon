@@ -21,29 +21,70 @@ def askGiga(user_query: str) -> str:
 
     # Формируем понятный prompt
     prompt = f"""
-Ты помощник аналитика HR.
-Пользователь задаёт вопрос о метриках сотрудников.
+Ты помощник аналитика HR. 
+Твоя задача — только выбрать метрику и сформировать JSON по строго фиксированным правилам.
 
-Всегда отвечай строго в JSON формате, без каких-либо чисел:
+Формат ответа ВСЕГДА:
 {{
-  "metric": "ключ_метрики",
-  "filters": {{}}
+  "metric": "ключ_метрики", 
+  "filters": {{ "service": "...", "sex": "M" }},
+  "group_by": ["age_category", "sex"],
+  "timeframe": {{"month": 7}} 
 }}
 
 Правила:
-- "metric" должен быть одним из ключей доступных метрик.
-- Если метрика не распознаётся — укажи "metric": null.
-- В "filters" указывай параметры, если они явно есть в вопросе:
-  * Для метрики count-by-department-level указывай "level": одно из department_3, department_4, department_5, department_6.
-  * Если уровень департамента не указан — filters оставь пустым.
-- Никогда не делай расчётов и не подставляй числа — сервер сам их вычислит.
+1. "metric" — один из ключей из списка ниже. Никогда не придумывай свой.
+   Доступные метрики:
+   {list(METRICS.keys())}
 
-Доступные метрики с описанием:
-{available_metrics}
+2. ВАЖНО:
+- В "filters" НИКОГДА не добавляй поля про время (month, months, start, end).
+- В "filters" могут быть только поля: 
+  ["service","sex","region","work_form",
+   "department_3","department_4","department_5","department_6",
+   "age_category","experience_category"].
+
+- Для времени используй только объект "timeframe".
+
+   Если в вопросе явно нет фильтров — оставляй пустым: {{}}.
+
+3. "group_by" — массив, где элементы ТОЛЬКО из:
+   ["sex","region","work_form",
+    "department_3","department_4","department_5","department_6",
+    "age_category","experience_category"]
+
+   Если группировка не указана — верни [].
+
+4. "timeframe":
+   - Если указан конкретный месяц, возвращай {{"month": N}} где N ∈ [7,8,9].
+   - Если указан диапазон месяцев, возвращай {{"months":[7,8,9]}}.
+   - Если указан диапазон дат, возвращай {{"start":"2025-07-01","end":"2025-09-30"}}.
+   - Если про время ничего не сказано — верни пустой объект: {{}}.
+
+5. Никогда не делай вычислений и не пиши числа в "result".
+6. Ответ ВСЕГДА только JSON, без комментариев и текста.
+7. Если метрика не распознаётся — укажи "metric": null.
+
+Вот пример правильного ответа
+{{
+  "metric": "turnover-rate-by-age-category",
+  "filters": {{ "department_3": "Department-98" }},
+  "group_by": ["age_category"],
+  "timeframe": {{ "month": 8 }}
+}}
+
+Вот пример неправильного ответа:
+(НЕ ДЕЛАЙ ТАК):
+{{
+  "metric": "turnover-rate-by-age-category",
+  "filters": {{ "department_3": "Department-98", "month": "8" }},
+  "group_by": ["age_category"],
+  "timeframe": {{ "month": 8 }}
+}}
+
 
 Вопрос пользователя: "{user_query}"
 """
 
     response = giga.chat(prompt)
-    print(response.choices[0].message.content)
     return response.choices[0].message.content

@@ -14,13 +14,11 @@ def get_plot(
     request: Request,
     db: Session = Depends(get_db)
 ):
-    # Все query параметры собираем в dict
+ 
     filters = dict(request.query_params)
 
-    # Берем датафрейм из базы
     df = analytics_service.get_employees_df(db, limit=None)
 
-    # Определяем список ключей метрик
     if metric_name == "random":
         dict_keys = [k for k, m in metrics.METRICS.items()
                      if m.get("has_plot")]
@@ -33,7 +31,7 @@ def get_plot(
     if not dict_keys:
         return {"error": f"Нет доступных метрик для '{metric_name}'"}
 
-    # Выбираем до 3 случайных метрик
+  
     selected_keys = random.sample(dict_keys, min(3, len(dict_keys)))
 
     results = []

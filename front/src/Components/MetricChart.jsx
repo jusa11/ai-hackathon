@@ -25,8 +25,16 @@ const MetricChart = ({ data, big }) => {
   const fullLabels = Object.keys(data.result || {});
   const fullValues = Object.values(data.result || {});
 
+  // Нормализация значений — если вложенный объект, берём первое числовое значение
+  const values = fullValues.slice(0, MAX_ITEMS).map((v) => {
+    if (typeof v === 'object' && v !== null) {
+      const nums = Object.values(v).filter((val) => typeof val === 'number');
+      return nums.length > 0 ? nums[0] : 0;
+    }
+    return typeof v === 'number' ? v : 0;
+  });
+
   const labels = fullLabels.slice(0, MAX_ITEMS);
-  const values = fullValues.slice(0, MAX_ITEMS);
 
   const chartData = {
     labels,

@@ -27,7 +27,7 @@ const FormQuery = ({ addMessage, setIsLoading }) => {
       });
 
       // const res = await axios.get('http://localhost:8000/metric/random');
-
+      console.log(res.data);
       const botMessage = {
         id: Date.now() + 1,
         type: 'bot',
