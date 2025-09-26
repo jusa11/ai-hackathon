@@ -31,9 +31,9 @@ def run_metric(
     type_chart: str = "bar"
 ) -> Dict[str, Any]:
     """Запуск метрики с фильтрами, группировкой и периодом."""
-
-    print(func, filters, group_by, timeframe)
-
+    
+    
+    
     df_filtered = apply_filters_and_timeframe(df, filters, timeframe)
     if df_filtered.empty:
         return {"result": {}, "type_chart": type_chart, "has_plot": False}
@@ -58,6 +58,6 @@ def run_metric(
     result = safe_serialize_result(result)
     has_plot = True if result else False
 
-    print(f"run_metric: {result}")
+
 
     return {"result": result, "type_chart": type_chart, "has_plot": has_plot}

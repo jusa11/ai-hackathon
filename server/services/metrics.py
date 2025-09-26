@@ -10,7 +10,7 @@ METRICS = {
     "average-experience": {
         "func": analytics_service.get_average_experience,
         "has_plot": False,
-        "title": "Средний опыт сотрудников",
+        "title": "Средний опыт сотрудников в том числе с фильтрами и группировками, например по возрасту, полу и т.д",
         "description": "Вычисляет средний стаж работы сотрудников в компании"
     },
     "average-age": {
@@ -26,14 +26,6 @@ METRICS = {
         "type_chart": 'pie',
         "description": "Считает количество мужчин и женщин в компании"
     },
-
-    "employee-count-by-department-level": {
-        "func": analytics_service.get_count_by_department_level,
-        "has_plot": True,
-        "type_chart": 'bar',
-        "title": "Количество сотрудников в департаменте",
-        "description": "Показывает распределение сотрудников по уровням департамента"
-    },
     "employees-by-region": {
         "func": analytics_service.get_employees_by_region,
         "has_plot": True,
@@ -48,32 +40,18 @@ METRICS = {
         "title": "Средний срок работы до увольнения",
         "description": "Вычисляет средний период работы сотрудников до их увольнения"
     },
-    "average-experience-by-department": {
-        "func": analytics_service.get_average_experience_by_department,
+    "average-fte": {
+        "func": analytics_service.get_average_fte,
         "has_plot": True,
-        "type_chart": 'bar',
-        "title": "Средний опыт сотрудников в департаменте",
-        "description": "Вычисляет средний стаж работы сотрудников по департаментам"
+        "title": "Средний FTE сотрудников",
+        "description": "Считает средний FTE сотрудников, поддерживает фильтры и группировки по любым полям (например service, sex, region, department_3 и т.д.)"
     },
-    "average-fte-by-department": {
-        "func": analytics_service.get_average_fte_by_department,
-        "has_plot": True,
-        "type_chart": 'bar',
-        "title": "Средний FTE в департаменте",
-        "description": "Считает среднюю ставку FTE сотрудников по департаментам"
-    },
-    "average-experience-by-region": {
-        "func": analytics_service.get_average_experience_by_region,
-        "has_plot": True,
-        "type_chart": 'bar',
-        "title": "Средний опыт работников по регионам",
-        "description": "Вычисляет средний стаж работы сотрудников по регионам"
-    },
+
     "fired-count": {
         "func": analytics_service.get_fired_count,
         "has_plot": False,
         "title": "Общее количество увольнений",
-        "description": "Подсчитывает общее количество увольнений сотрудников"
+        "description": "Подсчитывает общее количество увольнений сотрудниковподдерживает фильтры и группировки по любым полям (например service, sex, region, department_3 и т.д.)"
     },
     "hire-count": {
         "func": analytics_service.get_hire_count,
@@ -100,32 +78,19 @@ METRICS = {
         "title": "Средний FTE",
         "description": "Вычисляет среднюю ставку FTE по всем сотрудникам"
     },
-    "turnover-rate-by-month": {
-        "func": analytics_service.get_turnover_rate_by_month,
-        "has_plot": False,
-        "type": 'bar',
-        "title": "Текучесть кадров за выбранные месяцы",
-        "description": "Показывает текучесть сотрудников по месяцам"
+    "turnover": {
+        "func": analytics_service.get_turnover,
+        "has_plot": True,
+        "title": "Turnover Rate",
+        "description": "Текучесть кадров (%), с учётом фильтров, периода и группировки"
     },
-    "turnover-rate-by-department": {
-        "func": analytics_service.get_turnover_rate_by_department,
-        "has_plot": False,
-        "title": "Текучесть в департаменте",
-        "description": "Вычисляет текучесть сотрудников в каждом департаменте"
-    },
-    "hires-and-fires-share-by-department": {
-        "func": analytics_service.get_hires_and_fires_share_by_department,
+
+    "hires-and-fires-share": {
+        "func": analytics_service.get_hires_and_fires_share,
         "has_plot": True,
         "type_chart": 'doughnut',
-        "title": "Доля новых наймов и увольнений в департаменте",
-        "description": "Показывает долю новых сотрудников и увольнений по департаментам"
-    },
-    "turnover-rate-all-regions": {
-        "func": analytics_service.get_turnover_rate_all_regions,
-        "has_plot": True,
-        "type_chart": 'bar',
-        "title": "Текучесть по всем регионам",
-        "description": "Сравнивает текучесть сотрудников по регионам"
+        "title": "Доля новых наймов и увольнений",
+        "description": "Показывает долю новых сотрудников и увольнений с учётом фильтров, периода и группировки"
     },
     "work-form-distribution": {
         "func": analytics_service.get_work_form_distribution,
@@ -134,73 +99,17 @@ METRICS = {
         "title": "Доля сотрудников по формам работы - офис/удаленка",
         "description": "Показывает процентное соотношение сотрудников в офисе и удалённо"
     },
-    "average-fte-by-work-form": {
-        "func": analytics_service.get_average_fte_by_work_form,
-        "has_plot": True,
-        "type_chart": 'pie',
-        "title": "Средняя ставка FTE по формам работы - офис/удаленка",
-        "description": "Вычисляет среднюю ставку FTE для офисных и удалённых сотрудников"
-    },
-    "turnover-rate-by-age-category": {
-        "func": analytics_service.get_turnover_rate_by_age_category,
+    "employee-count": {
+        "func": analytics_service.get_employee_count,
         "has_plot": True,
         "type_chart": 'bar',
-        "title": "Текучесть по возрастным категориям",
-        "description": "Показывает текучесть по разным возрастным категориям сотрудников"
+        "title": "Количество сотрудников с фильтрами и метриками",
+        "description": "Количество сотрудников с учётом фильтров, периода и группировки (по сервисам, департаментам, отделам, месяцам, полу и тд)"
     },
-    "turnover-rate-by-experience-category": {
-        "func": analytics_service.get_turnover_rate_by_experience_category,
-        "has_plot": True,
-        "type_chart": 'bar',
-        "title": "Текучесть по категориям опыта",
-        "description": "Показывает текучесть сотрудников по категориям опыта"
-    },
-    "average-experience-by-group": {
-        "func": analytics_service.get_average_experience_by_group,
+    "total-employees": {
+        "func": analytics_service.get_total_employees,
         "has_plot": False,
-        "title": "Средний стаж по сервису или отделу",
-        "description": "Вычисляет средний стаж по отдельным сервисам или отделам"
+        "title": "Общее количество сотрудников",
+        "description": "Общее количество сотрудников"
     },
-    "turnover-rate-by-service": {
-        "func": analytics_service.get_turnover_rate_by_service,
-        "has_plot": True,
-        "type_chart": 'bar',
-        "title": "Текучесть по сервисам",
-        "description": "Показывает текучесть сотрудников по сервисам компании"
-    },
-    "turnover-rate-by-work-form": {
-        "func": analytics_service.get_turnover_rate_by_work_form,
-        "has_plot": True,
-        "type_chart": 'pie',
-        "title": "Текучесть по форме работы - офис/удаленка",
-        "description": "Сравнивает текучесть между офисными и удалёнными сотрудниками"
-    },
-    "fired-count-by-region": {
-        "func": analytics_service.get_fired_count_by_region,
-        "has_plot": True,
-        "type_chart": 'bar',
-        "title": "Количество увольнений по регионам",
-        "description": "Считает количество увольнений сотрудников по регионам"
-    },
-    "employee-count-by-service": {
-        "func": analytics_service.get_employee_count_by_service,
-        "has_plot": True,
-        "type_chart": 'bar',
-        "title": "Количество сотрудников по сервисам",
-        "description": "Считает количество сотрудников в каждом сервисе"
-    },
-    "average-fte-by-service": {
-        "func": analytics_service.get_average_fte_by_service,
-        "has_plot": True,
-        "type_chart": 'bar',
-        "title": "Средний FTE по сервисам",
-        "description": "Вычисляет средний FTE сотрудников по каждому сервису"
-    },
-    "average-experience-by-region": {
-        "func": analytics_service.get_average_experience_by_region,
-        "has_plot": True,
-        "type_chart": 'bar',
-        "title": "Средний стаж по регионам",
-        "description": "Вычисляет средний стаж сотрудников в разных регионах"
-    }
 }

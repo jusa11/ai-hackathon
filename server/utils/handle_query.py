@@ -13,6 +13,7 @@ def handle_user_query(parsed: dict, df: pd.DataFrame, user_query: str) -> Dict[s
     filters = parsed.get("filters", {})
     group_by = parsed.get("group_by", [])
     timeframe = parsed.get("timeframe", {})
+    print(f"Filter: {parsed}")
 
     meta = METRICS.get(metric_name)
     if not meta:

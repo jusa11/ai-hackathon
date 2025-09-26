@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 from fastapi import Query
 from fastapi import APIRouter, Depends
@@ -198,14 +199,22 @@ def average_fte_by_work_form_endpoint(
     return {"result": result}
 
 
-@router.get("/turnover-by-age-category")
+@router.get("/turnover-rate-by-age-category")
 def turnover_by_age_category(
-    month: int | None = Query(None, ge=1, le=12),
+    filters: str | None = Query(
+        None, description="JSON строка фильтров, например {\"department_3\": \"Dept-1\"}"),
+    timeframe: str | None = Query(
+        None, description="JSON строка timeframe, например {\"months\": [7,8]}"),
     db: Session = Depends(get_db)
 ):
     df = analytics_service.get_employees_df(db, limit=None)
+
+    filters_dict = json.loads(filters) if filters else {}
+    timeframe_dict = json.loads(timeframe) if timeframe else {}
+
     result = analytics_service.get_turnover_rate_by_age_category(
-        df, month=month)
+        df, filters=filters_dict, timeframe=timeframe_dict
+    )
     return {"result": result}
 
 
