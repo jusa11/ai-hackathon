@@ -32,5 +32,6 @@ def handle_user_query(parsed: dict, df: pd.DataFrame, user_query: str) -> Dict[s
         comment = generate_comment(user_query, metric_name, result)
     except Exception as e:
         comment = f"Не удалось сгенерировать комментарий: {str(e)}"
+    print(f"handle_query{result}")
 
     return {"result_text": comment, "result": result, "type_chart": type_chart, "has_plot": has_plot}

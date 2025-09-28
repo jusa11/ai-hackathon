@@ -1,20 +1,24 @@
 import os
-from gigachat import GigaChat
 from dotenv import load_dotenv
+from yandex_cloud_ml_sdk import YCloudML
 
 load_dotenv()
-GIGACHAT_CLIENT_SECRET = os.getenv("GIGACHAT_CLIENT_SECRET")
+YANDEXGPT_TOKEN = os.getenv("YANDEXGPT_TOKEN")
+FOLDER_ID = os.getenv("FOLDER_ID")
 
-giga = GigaChat(credentials=GIGACHAT_CLIENT_SECRET, verify_ssl_certs=False)
+
+sdk = YCloudML(folder_id=FOLDER_ID, auth=YANDEXGPT_TOKEN)
 
 
 def generate_comment(user_query: str, metric: str, result: dict) -> str:
     """
-    Генерирует короткий комментарий от LLM по результатам метрики
+    Генерирует короткий комментарий от Yandex GPT по результатам метрики.
     """
-   
-    result_str = "\n".join([f"{k}: {v}" for k, v in result.items()]) if isinstance(
-        result, dict) else str(result)
+
+    if isinstance(result, dict):
+        result_str = "\n".join([f"{k}: {v}" for k, v in result.items()])
+    else:
+        result_str = str(result)
 
     prompt = f"""
 Ты аналитик HR-данных.
@@ -27,5 +31,9 @@ def generate_comment(user_query: str, metric: str, result: dict) -> str:
 Сформируй короткий комментарий (1–3 предложения) простыми словами,
 выделяя основные выводы из этих данных, не придумывай числа.
 """
-    response = giga.chat(prompt)
-    return response.choices[0].message.content.strip()
+
+    model = sdk.models.completions("yandexgpt").configure(temperature=0.5)
+    response = model.run(prompt)
+
+    comment = response.alternatives[0].text.strip()
+    return comment

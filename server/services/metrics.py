@@ -103,7 +103,7 @@ METRICS = {
         "func": analytics_service.get_employee_count,
         "has_plot": True,
         "type_chart": 'bar',
-        "title": "Количество сотрудников с фильтрами и метриками",
+        "title": "Количество сотрудников",
         "description": "Количество сотрудников с учётом фильтров, периода и группировки (по сервисам, департаментам, отделам, месяцам, полу и тд)"
     },
     "total-employees": {

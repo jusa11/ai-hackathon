@@ -471,7 +471,6 @@ def get_employee_count(
 
     return _count(df_filtered)
 
-
 def get_total_employees(
     df: pd.DataFrame,
     filters: dict = {},

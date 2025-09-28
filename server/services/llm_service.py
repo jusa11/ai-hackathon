@@ -1,42 +1,61 @@
 import os
-from gigachat import GigaChat
 from dotenv import load_dotenv
+from yandex_cloud_ml_sdk import YCloudML
 from services.metrics import METRICS
 
 load_dotenv()
-GIGACHAT_CLIENT_SECRET = os.getenv("GIGACHAT_CLIENT_SECRET")
 
-giga = GigaChat(credentials=GIGACHAT_CLIENT_SECRET, verify_ssl_certs=False)
+YANDEXGPT_TOKEN = os.getenv("YANDEXGPT_TOKEN")
+FOLDER_ID = os.getenv("FOLDER_ID")
 
-# Создаём список метрик с описанием и alias для LLM
+
+sdk = YCloudML(
+    folder_id=FOLDER_ID,
+    auth=YANDEXGPT_TOKEN,
+    enable_server_data_logging=False,
+)
+
+valid_values = {
+    "age_category": ["18-25", "25-40", "40-60"],
+    "service": [
+        "Доставка", "Крауд", "Вертикали", "Еда", "Коммерческий департамент",
+        "Лавка", "Маркет", "Поисковый портал", "Такси", "Финтех"
+    ],
+    "sex": ["M", "F"],
+    "experience_category": [
+        "1 мес", "2 мес", "3 мес",
+        "до 1 года", "1-2 года", "2-3 года", "3-5 лет", "более 5 лет"
+    ],
+    "work_form": [0, 1],
+}
+
 available_metrics = []
 for k, v in METRICS.items():
     aliases = v.get("aliases", [])
     desc = v.get("description", "")
     if k == "average-experience":
-        # Отдельно подчёркиваем, что метрика умеет группироваться
         desc += " Поддерживает группировки по age_category, sex, service, department_*."
     available_metrics.append(
-        {"key": k, "description": desc, "aliases": aliases})
+        {"key": k, "description": desc, "aliases": aliases}
+    )
 
 
-def askGiga(user_query: str) -> str:
+def askYandexGPT(user_query: str) -> str:
     """
-    Определяет, какую метрику использовать, и возвращает строго JSON с ключом 'metric' и 'filters'.
-    LLM не делает вычислений — только выбирает метрику.
+    Отправляет запрос к Yandex GPT и возвращает строго JSON строку с ключами:
+    'metric', 'filters', 'group_by', 'timeframe'
     """
-    # Формируем понятный prompt
+    model = sdk.models.completions("yandexgpt").configure(temperature=0.5)
+
     prompt = f"""
 Ты помощник аналитика HR. 
 Твоя задача — только выбрать метрику и сформировать JSON по строго фиксированным правилам.
-Важно:
-- Некоторые метрики умеют группироваться. Например, "average-experience" может быть сгруппирована по:
-  age_category, sex, service, department_3-6
-- Никогда не придумывай новые ключи вроде "average-experience-by-age-category".
-- Всегда используй существующие ключи из списка.
 
 Доступные метрики (ключ + описание + alias):
 {available_metrics}
+
+Доступные колонки и допустимые значения:
+{valid_values}
 
 Формат ответа ВСЕГДА:
 {{
@@ -47,12 +66,9 @@ def askGiga(user_query: str) -> str:
 }}
 
 Правила:
-1. "metric" — один из ключей или alias из списка выше. Важно никогда не придумывай свой!!!!
-2. В "filters" НИКОГДА не добавляй поля про время (month, months, start, end). Используй только:
-   ["service","sex","region","work_form",
-    "department_3","department_4","department_5","department_6",
-    "age_category","experience_category"]. 
-3. "group_by" — массив, где элементы ТОЛЬКО из тех же полей.
+1. "metric" — один из ключей или alias из списка выше.
+2. В "filters" и "group_by" используй ТОЛЬКО значения из допустимых списков выше.
+3. Если в вопросе пользователя значение не совпадает с допустимым — возвращай null для этого фильтра.
 4. "timeframe":
    - Если указан конкретный месяц, возвращай {{"month": N}} где N ∈ [7,8,9].
    - Если указан диапазон месяцев, возвращай {{"months":[7,8,9]}}.
@@ -65,5 +81,9 @@ def askGiga(user_query: str) -> str:
 Вопрос пользователя: "{user_query}"
 """
 
-    response = giga.chat(prompt)
-    return response.choices[0].message.content
+    result = model.run(prompt)
+    json_str = result.alternatives[0].text
+
+    print(f"YandexGPT response: {json_str}")
+
+    return json_str
