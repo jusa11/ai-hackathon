@@ -81,7 +81,7 @@ METRICS = {
     "turnover": {
         "func": analytics_service.get_turnover,
         "has_plot": True,
-        "title": "Turnover Rate",
+        "title": "Текучесть кадров",
         "description": "Текучесть кадров (%), с учётом фильтров, периода и группировки"
     },
 
