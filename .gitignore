@@ -5,3 +5,4 @@ __pycache__
 node_modules
 failed.md
 llm_service_gigachat.py
+metric-description.md

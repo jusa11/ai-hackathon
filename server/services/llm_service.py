@@ -21,12 +21,14 @@ valid_values = {
         "Доставка", "Крауд", "Вертикали", "Еда", "Коммерческий департамент",
         "Лавка", "Маркет", "Поисковый портал", "Такси", "Финтех"
     ],
+    "department_3, department_4, department_5, department_6,": "department-{от 1 до 100}",
     "sex": ["M", "F"],
     "experience_category": [
         "1 мес", "2 мес", "3 мес",
         "до 1 года", "1-2 года", "2-3 года", "3-5 лет", "более 5 лет"
     ],
     "work_form": [0, 1],
+    "region": "Населенный пункт или регион страны"
 }
 
 available_metrics = []
@@ -58,6 +60,29 @@ def askYandexGPT(user_query: str) -> str:
 Доступные колонки и допустимые значения:
 {valid_values}
 
+Описание полей:
+"fullyears - Возраст (лет),
+age_category - Категория возраста,
+location_name - Локация человека,
+cluster - Кластер,
+service - Сервис,
+sex -Пол,
+department_3 - Департамент 3 уровень,
+department_4 - Департамент 4 уровень,
+department_5 - Департамент 5 уровень,
+department_6 - Департамент 6 уровень,
+(если уровень не указан выбери любой)
+experience_category - Категория опыта,
+experience - Опыт (мес.),
+fire_from_company - Дата увольнения из компании,
+hire_to_company - Дата приёма в компанию,
+hirecount - Флаг приёма,
+firecount - Флаг увольнения,
+fte - Ставка,
+real_day - Количество отработанных дней за отчетный период,
+report_date - Отчетный период (Всегда последнее число отчетного месяца или текущее число)"
+
+
 Формат ответа ВСЕГДА:
 {{
   "metric": "ключ_метрики", 
@@ -88,3 +113,5 @@ def askYandexGPT(user_query: str) -> str:
     print(f"YandexGPT response: {json_str}")
 
     return json_str
+
+

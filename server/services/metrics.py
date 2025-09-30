@@ -112,4 +112,53 @@ METRICS = {
         "title": "Общее количество сотрудников",
         "description": "Общее количество сотрудников"
     },
+    "hires-to-cover-turnover": {
+        "func": analytics_service.get_hires_to_cover_turnover,
+        "has_plot": True,
+        "type_chart": 'bar',
+        "title": "Доля новых наймов и увольнений",
+        "description": "Показывает сколько сотрудников нужно нанимать каждый месяц, чтобы покрыть отток"
+    },
+    "high-turnover-departments": {
+        "func": analytics_service.get_high_turnover_departments,
+        "has_plot": True,
+        "type_chart": 'bar',
+        "title": "Отделы с самой высокой текучестью кадров",
+        "description": "Показывает  отделы с самой высокой текучестью кадров"
+    },
+    "turnover-trend": {
+        "func": analytics_service.get_turnover_trend,
+        "has_plot": True,
+        "type_chart": 'bar',
+        "title": "Динамика текучести кадров",
+        "description": "Показывает динамику текучести кадров"
+    },
+    "at-risk-departments": {
+        "func": analytics_service.get_at_risk_departments,
+        "has_plot": True,
+        "type_chart": 'bar',
+        "title": "Отделы в зоне риска",
+        "description": "Находит отделы в зоне риска: высокая текучесть + низкий FTE + низкий опыт"
+    },
+    "most-stable-departments": {
+        "func": analytics_service.get_most_stable_departments,
+        "has_plot": True,
+        "type_chart": 'bar',
+        "title": "Отделы с низкой текучестью",
+        "description": "Находит отделы с низкой текучестью + высоким средним стажем"
+    },
+    "firing-trends-by-age": {
+        "func": analytics_service.get_firing_trends_by_age,
+        "has_plot": True,
+        "type_chart": 'bar',
+        "title": "Тренд увольнений по возрастным группам",
+        "description": "Показывает как меняется увольнения по возрастным группам по месяцам"
+    },
+    "hiring-trends-by-department": {
+        "func": analytics_service.get_hiring_trends_by_department,
+        "has_plot": True,
+        "type_chart": 'bar',
+        "title": "Тренд найма по отделам по месяцам",
+        "description": "Показывает как меняется найм по отделам"
+    },
 }

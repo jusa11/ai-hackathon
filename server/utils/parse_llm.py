@@ -14,12 +14,12 @@ def parse_llm_json(llm_response: str) -> dict:
         if brace_match:
             json_str = brace_match.group(1)
         else:
-            return {"error": "Не найден JSON", "raw": s}
+            return {"error": "Похоже что-то сломалось. Повторите попытку позже."}
 
     try:
         obj = json.loads(json_str)
     except Exception as e:
-        return {"error": f"Не удалось распарсить JSON: {e}", "raw": json_str}
+        return {"error": "Не удалось корректно обработать вопрос. Повторите попытку позже."}
 
     gb = obj.get("group_by")
     if isinstance(gb, str):

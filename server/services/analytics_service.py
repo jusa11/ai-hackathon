@@ -1,3 +1,4 @@
+from typing import Dict
 import pandas as pd
 import random
 import crud
@@ -366,15 +367,19 @@ def get_hires_and_fires_share(
     def _calc_rates(sub_df: pd.DataFrame) -> dict:
         total_hired = sub_df["hirecount"].sum()
         total_fired = sub_df["firecount"].sum()
-        avg_employees = sub_df.groupby(
-            sub_df["report_date"].dt.to_period("M")
-        ).size().mean()
 
-        if avg_employees == 0:
+        # Берём уникальных сотрудников за период
+        if "employee_id" in sub_df.columns:
+            total_employees = sub_df["employee_id"].nunique()
+        else:
+            # Если идентификаторов нет, fallback на количество строк (менее точно)
+            total_employees = len(sub_df)
+
+        if total_employees == 0:
             return {"hire_rate": 0.0, "fire_rate": 0.0}
 
-        hire_rate = round((total_hired / avg_employees) * 100, 2)
-        fire_rate = round((total_fired / avg_employees) * 100, 2)
+        hire_rate = round((total_hired / total_employees) * 100, 2)
+        fire_rate = round((total_fired / total_employees) * 100, 2)
         return {"hire_rate": hire_rate, "fire_rate": fire_rate}
 
     if group_by:
@@ -471,6 +476,7 @@ def get_employee_count(
 
     return _count(df_filtered)
 
+
 def get_total_employees(
     df: pd.DataFrame,
     filters: dict = {},
@@ -493,3 +499,247 @@ def get_total_employees(
         return 0
 
     return len(df_filtered)
+
+
+def get_hires_to_cover_turnover(
+    df: pd.DataFrame,
+    filters: dict = {},
+    timeframe: dict = {},
+    group_by: list[str] | None = None
+) -> dict:
+    """
+    Среднее количество сотрудников, которое нужно нанимать каждый месяц, чтобы покрыть отток.
+
+    filters: фильтры по колонкам, например {"service": "Еда"}
+    timeframe: {"month": 8}, {"months": [7,8,9]}, {"start": "YYYY-MM-DD", "end": "YYYY-MM-DD"}
+    group_by: список колонок для группировки, например ["service"]
+
+    Возвращает:
+      {"needed_hires": x} если group_by не указан
+      {"group_key": {"needed_hires": x}, ...} если group_by указан
+    """
+    required_cols = {"firecount", "report_date"}
+    if not required_cols.issubset(df.columns):
+        return {}
+
+    df_filtered = apply_filters_and_timeframe(df, filters, timeframe)
+    if df_filtered.empty:
+        return {}
+
+    def _calc_needed_hires(sub_df: pd.DataFrame) -> dict:
+        # Группируем по месяцу и суммируем количество увольнений
+        monthly_fired = sub_df.groupby(sub_df["report_date"].dt.to_period("M"))[
+            "firecount"].sum()
+        if monthly_fired.empty:
+            return {"needed_hires": 0}
+        # Среднее увольнений в месяц
+        avg_monthly_fired = round(monthly_fired.mean())
+        return {"needed_hires": avg_monthly_fired}
+
+    if group_by:
+        result = {}
+        for keys, group in df_filtered.groupby(group_by):
+            key = keys if isinstance(keys, str) else tuple(keys)
+            result[key] = _calc_needed_hires(group)
+        return result
+
+    return _calc_needed_hires(df_filtered)
+
+
+def get_high_turnover_departments(
+    df: pd.DataFrame,
+    filters: dict = {},
+    timeframe: dict = {},
+    top_n: int = 5
+) -> dict:
+    """
+    Отделы с самой высокой текучестью кадров.
+
+    df: DataFrame с колонками ["department_3", "firecount", "report_date"]
+    filters: фильтры по отделу, сервису и др.
+    timeframe: {"month": 8} или {"months": [7,8,9]} или {"start": "YYYY-MM-DD","end":"YYYY-MM-DD"}
+    top_n: сколько топ отделов вернуть
+
+    Возвращает словарь вида {department_name: turnover_rate}
+    """
+    required_cols = {"department_3", "firecount", "report_date"}
+    if not required_cols.issubset(df.columns):
+        return {}
+
+    df_filtered = apply_filters_and_timeframe(df, filters, timeframe)
+    if df_filtered.empty:
+        return {}
+
+    # Расчёт текучести по отделам
+    def _calc_turnover(sub_df: pd.DataFrame) -> float:
+        total_fired = sub_df["firecount"].sum()
+        avg_employees = sub_df.groupby(
+            sub_df["report_date"].dt.to_period("M")).size().mean()
+        if avg_employees == 0:
+            return 0.0
+        return round((total_fired / avg_employees) * 100, 2)
+
+    turnover_by_department = df_filtered.groupby(
+        "department_3").apply(_calc_turnover)
+    turnover_by_department = turnover_by_department.sort_values(
+        ascending=False).head(top_n)
+
+    return turnover_by_department.to_dict()
+
+
+def get_turnover_trend(
+    df: pd.DataFrame,
+    filters: dict = {},
+    timeframe: dict = {},
+    period: str = "M"  # "M" — по месяцам, "Y" — по годам
+) -> dict:
+    """
+    Динамика текучести кадров по выбранному периоду (месяц или год).
+
+    df: DataFrame с колонками ["firecount", "report_date"]
+    filters: фильтры по отделу, сервису и др.
+    timeframe: {"month": 8} или {"months": [7,8,9]} или {"start": "YYYY-MM-DD","end":"YYYY-MM-DD"}
+    period: "M" — месяцы, "Y" — годы
+
+    Возвращает словарь {period_label: turnover_rate}
+    """
+    required_cols = {"firecount", "report_date"}
+    if not required_cols.issubset(df.columns):
+        return {}
+
+    df_filtered = apply_filters_and_timeframe(df, filters, timeframe)
+    if df_filtered.empty:
+        return {}
+
+    # Добавляем период для группировки
+    df_filtered["period"] = df_filtered["report_date"].dt.to_period(period)
+
+    turnover_dict = {}
+    for p, group in df_filtered.groupby("period"):
+        total_fired = group["firecount"].sum()
+        avg_employees = group.groupby(
+            group["report_date"].dt.to_period("M")).size().mean()
+        turnover_rate = round((total_fired / avg_employees)
+                              * 100, 2) if avg_employees else 0.0
+        turnover_dict[str(p)] = turnover_rate
+
+    return turnover_dict
+
+
+def get_at_risk_departments(df: pd.DataFrame, filters: dict = {}, timeframe: dict = {}) -> Dict:
+    """
+    Отделы в зоне риска: высокая текучесть + низкий FTE + низкий опыт.
+    Текучесть считается через firecount (0/1), опыт через experience.
+    Сравниваем с медианными значениями по всем отделам.
+    """
+    df_filtered = apply_filters_and_timeframe(df, filters, timeframe)
+    if df_filtered.empty:
+        return {}
+
+    # Считаем метрики по отделам
+    grouped = df_filtered.groupby("department_3").agg(
+        turnover=("firecount", "mean"),
+        avg_fte=("fte", "mean"),
+        avg_exp=("experience", "mean")
+    ).reset_index()
+
+    # Медианные значения для фильтрации
+    turnover_median = grouped["turnover"].median()
+    fte_median = grouped["avg_fte"].median()
+    exp_median = grouped["avg_exp"].median()
+
+    result = {}
+
+    for _, row in grouped.iterrows():
+        if (
+            row["turnover"] is not None and row["turnover"] > turnover_median
+            and row["avg_fte"] is not None and row["avg_fte"] < fte_median
+            and row["avg_exp"] is not None and row["avg_exp"] < exp_median
+        ):
+            dept = row["department_3"]
+            result[dept] = {
+                "turnover": round(row["turnover"], 2),
+                "avg_fte": round(row["avg_fte"], 2),
+                "avg_experience": round(row["avg_exp"], 2)
+            }
+
+    return result
+
+
+def get_most_stable_departments(df: pd.DataFrame, filters: dict = {}, timeframe: dict = {}) -> Dict:
+    """
+    Отделы с низкой текучестью + высоким средним стажем.
+    Текучесть через firecount (0/1), опыт через experience.
+    """
+    df_filtered = apply_filters_and_timeframe(df, filters, timeframe)
+    if df_filtered.empty:
+        return {}
+
+    # Пороговые значения
+    turnover_threshold = 0.2  # текучесть < 20%
+    experience_threshold = 5.0  # средний стаж > 5 лет
+
+    grouped = df_filtered.groupby("department_3")
+    result = {}
+
+    for dept, group in grouped:
+        turnover = group["firecount"].mean(
+        ) if "firecount" in group.columns else 0
+        avg_exp = group["experience"].mean(
+        ) if "experience" in group.columns else None
+
+        if turnover < turnover_threshold and avg_exp is not None and avg_exp > experience_threshold:
+            result[dept] = {
+                "turnover": round(turnover, 2),
+                "avg_experience": round(avg_exp, 2)
+            }
+
+    return result
+
+
+def get_firing_trends_by_age(df: pd.DataFrame, filters: dict = {}, timeframe: dict = {}) -> Dict:
+    """
+    Тренд увольнений по возрастным группам по месяцам.
+    firecount (0/1), age_category, report_date (дата отчета)
+    """
+    df_filtered = apply_filters_and_timeframe(df, filters, timeframe)
+    if df_filtered.empty:
+        return {}
+
+    # Преобразуем дату в год-месяц
+    df_filtered["year_month"] = df_filtered["report_date"].dt.to_period(
+        "M").astype(str)
+
+    grouped = df_filtered.groupby(["year_month", "age_category"])
+    result = grouped["firecount"].sum().unstack(
+        fill_value=0).to_dict(orient="index")
+
+    # Преобразуем все значения в int
+    for month in result:
+        result[month] = {age: int(val) for age, val in result[month].items()}
+
+    return result
+
+
+def get_hiring_trends_by_department(df: pd.DataFrame, filters: dict = {}, timeframe: dict = {}) -> Dict:
+    """
+    Тренд найма по отделам по месяцам.
+    hirecount (0/1), department_3, report_date (дата отчета)
+    """
+    df_filtered = apply_filters_and_timeframe(df, filters, timeframe)
+    if df_filtered.empty:
+        return {}
+
+    # Преобразуем дату в год-месяц
+    df_filtered["year_month"] = df_filtered["report_date"].dt.to_period(
+        "M").astype(str)
+
+    grouped = df_filtered.groupby(["year_month", "department_3"])
+    result = grouped["hirecount"].sum().unstack(
+        fill_value=0).to_dict(orient="index")
+
+    # Преобразуем все значения в int
+    for month in result:
+        result[month] = {dept: int(val) for dept, val in result[month].items()}
+
+    return result

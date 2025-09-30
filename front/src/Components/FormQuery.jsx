@@ -45,7 +45,7 @@ const FormQuery = ({ addMessage, setIsLoading }) => {
       addMessage({
         id: Date.now() + 2,
         type: 'bot',
-        text: 'Ошибка при запросе к LLM',
+        text: 'Что-то сломалось 💥, попробуйте повторить позже или задать вопрос по-другому',
         metricResult: null,
         chartData: null,
         isLoading: false,

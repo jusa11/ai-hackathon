@@ -3,21 +3,20 @@ import pandas as pd
 from .run_metric import run_metric
 from services.llm_comment_service import generate_comment
 from services.metrics import METRICS
+from services.general_hr_summary_stub import general_hr_summary_stub
 
 
 def handle_user_query(parsed: dict, df: pd.DataFrame, user_query: str) -> Dict[str, Any]:
-    if "error" in parsed:
-        return {"result_text": parsed["error"], "result": None, "has_plot": False}
-
     metric_name = parsed.get("metric")
     filters = parsed.get("filters", {})
     group_by = parsed.get("group_by", [])
     timeframe = parsed.get("timeframe", {})
-    print(f"Filter: {parsed}")
 
     meta = METRICS.get(metric_name)
+
+    # Если метрика не найдена — возвращаем заглушку
     if not meta:
-        return {"result_text": f"Метрика '{metric_name}' не найдена.", "result": None, "has_plot": False}
+        return general_hr_summary_stub(df, user_query)
 
     func = meta["func"]
     type_chart = meta.get("type_chart", "bar")
@@ -25,13 +24,22 @@ def handle_user_query(parsed: dict, df: pd.DataFrame, user_query: str) -> Dict[s
     result_with_plot = run_metric(
         func, df, filters, timeframe, group_by, type_chart)
     result = result_with_plot.get("result")
-    type_chart = result_with_plot.get("type_chart")
-    has_plot = result_with_plot.get("has_plot")
+    has_plot = result_with_plot.get("has_plot", False)
 
+    # Если результат пустой — возвращаем заглушку
+    if not result:
+        return general_hr_summary_stub(df, user_query)
+
+    # Генерация комментария через LLM
     try:
+        from services.llm_comment_service import generate_comment
         comment = generate_comment(user_query, metric_name, result)
     except Exception as e:
         comment = f"Не удалось сгенерировать комментарий: {str(e)}"
-    print(f"handle_query{result}")
 
-    return {"result_text": comment, "result": result, "type_chart": type_chart, "has_plot": has_plot}
+    return {
+        "result_text": comment,
+        "result": result,
+        "type_chart": type_chart,
+        "has_plot": has_plot
+    }
