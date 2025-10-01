@@ -1,7 +1,7 @@
 from typing import Dict, Any, List
 import pandas as pd
 from .run_metric import run_metric
-from services.llm_comment_service import generate_comment
+from services.llm_comment_service import generate_comment_metrics
 from services.metrics import METRICS
 from services.general_hr_summary_stub import general_hr_summary_stub
 
@@ -32,8 +32,8 @@ def handle_user_query(parsed: dict, df: pd.DataFrame, user_query: str) -> Dict[s
 
     # Генерация комментария через LLM
     try:
-        from services.llm_comment_service import generate_comment
-        comment = generate_comment(user_query, metric_name, result)
+        from services.llm_comment_service import generate_comment_metrics
+        comment = generate_comment_metrics(user_query, metric_name, result)
     except Exception as e:
         comment = f"Не удалось сгенерировать комментарий: {str(e)}"
 

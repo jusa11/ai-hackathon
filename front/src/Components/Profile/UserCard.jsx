@@ -1,6 +1,18 @@
-const UserCard = ({ collapsed }) => {
+import NotificationsIcon from './NotificationsIcon';
+
+const UserCard = ({
+  collapsed,
+  isShowNotifications,
+  setIsShowNotifications,
+  setIsChat,
+  countNotifications,
+}) => {
   return (
-    <div className={`mt-auto border-t border-zinc-700 flex items-center justify-between ${collapsed ? "p-1" : "p-2"}`}>
+    <div
+      className={`mt-auto border-t border-zinc-700 flex items-center justify-between ${
+        collapsed ? 'p-1' : 'p-2'
+      }`}
+    >
       <div className="flex items-center gap-3">
         <div className="p-[2px] rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-red-500">
           <img
@@ -19,9 +31,20 @@ const UserCard = ({ collapsed }) => {
       </div>
 
       {!collapsed && (
-        <div className="flex gap-2">
-          <button className="p-1 hover:bg-zinc-800 rounded-lg">
-            {/* settings */}
+        <div className="flex gap-1">
+          <button
+            className="hover:bg-zinc-800 rounded-lg"
+            onClick={() => {
+              setIsChat(false);
+              isShowNotifications
+                ? setIsShowNotifications(false)
+                : setIsShowNotifications(true);
+            }}
+          >
+            <NotificationsIcon count={countNotifications} />
+          </button>
+
+          <button className="hover:bg-zinc-800 rounded-lg">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               height="24px"
@@ -43,7 +66,7 @@ const UserCard = ({ collapsed }) => {
               <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z" />
             </svg>
           </button>
-        </div>	
+        </div>
       )}
     </div>
   );

@@ -3,11 +3,17 @@ import axios from 'axios';
 import FormQuery from './FormQuery';
 import MetricCard from './MetricCard';
 import ChatWithLLM from './ChatWithLLM';
+import NotificationsList from './Profile/NotificationsList';
 
-const Content = () => {
+const Content = ({
+  isShowNotifications,
+  setIsShowNotifications,
+  isChat,
+  setIsChat,
+  setCountNotifications,
+}) => {
   const [metrics, setMetrics] = useState([]);
   const [bigMetric, setBigMetric] = useState(null);
-  const [isChat, setIsChat] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [metricIsLoading, setMetricIsLoading] = useState(false);
   const [bigMetricIsLoading, setBigMetricIsLoading] = useState(false);
@@ -58,7 +64,11 @@ const Content = () => {
   return (
     <div className="relative flex-1 flex flex-col h-full overflow-hidden">
       <main ref={contentRef} className="flex-1 flex flex-col p-4 overflow-auto">
-        <div className={`${isChat ? 'hidden' : 'flex flex-col gap-4'}`}>
+        <div
+          className={`${
+            isChat || isShowNotifications ? 'hidden' : 'flex flex-col gap-4'
+          }`}
+        >
           <div className="grid grid-cols-3 gap-4">
             {metricIsLoading
               ? Array.from({ length: 3 }).map((_, i) => (
@@ -89,7 +99,18 @@ const Content = () => {
           isChat={isChat}
           setIsChat={setIsChat}
           isLoading={isLoading}
+          isShowNotifications={isShowNotifications}
+          setIsShowNotifications={setIsShowNotifications}
         />
+        <div className={`${isShowNotifications ? 'w-full' : 'hidden'}`}>
+          <NotificationsList
+            isShowNotifications={isShowNotifications}
+            setIsShowNotifications={setIsShowNotifications}
+            isChat={isChat}
+            setIsChat={setIsChat}
+            setCountNotifications={setCountNotifications}
+          />
+        </div>
       </main>
 
       <button
@@ -98,7 +119,10 @@ const Content = () => {
             ? 'hidden'
             : 'w-full py-3 font-medium text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300'
         }`}
-        onClick={handleChat}
+        onClick={() => {
+          handleChat();
+          setIsShowNotifications(false);
+        }}
       >
         🚀 Открыть чат с AI
       </button>
@@ -106,7 +130,7 @@ const Content = () => {
       <div
         className={`${
           isChat
-            ? 'fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-[600px] z-20'
+            ? 'fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-[600px] z-30'
             : 'hidden'
         }`}
       >

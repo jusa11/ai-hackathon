@@ -25,7 +25,6 @@ const MetricChart = ({ data, big }) => {
   const fullLabels = Object.keys(data.result || {});
   const fullValues = Object.values(data.result || {});
 
-  // Нормализация значений — если вложенный объект, берём первое числовое значение
   const values = fullValues.slice(0, MAX_ITEMS).map((v) => {
     if (typeof v === 'object' && v !== null) {
       const nums = Object.values(v).filter((val) => typeof val === 'number');
@@ -49,8 +48,10 @@ const MetricChart = ({ data, big }) => {
           '#B3E0FF',
           '#4F6CE0',
         ],
-        borderColor: '#1E3A8A',
-        borderWidth: 1,
+        borderColor: '#fff',
+        borderWidth: 2,
+        borderRadius: 8, 
+        hoverOffset: 8, 
       },
     ],
   };
@@ -60,18 +61,32 @@ const MetricChart = ({ data, big }) => {
     maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
-      tooltip: { mode: 'index', intersect: false },
+      tooltip: {
+        mode: 'index',
+        intersect: false,
+        backgroundColor: 'rgba(30, 58, 138, 0.9)', 
+        titleColor: '#ffffff', 
+        bodyColor: '#ffffff', 
+        borderColor: '#3B82F6',
+        borderWidth: 1,
+        cornerRadius: 8, 
+        padding: 10, 
+      },
     },
     scales: {
       x: {
+        grid: { display: false, drawBorder: false, drawTicks: false },
         ticks: {
-          callback: (val, index) => {
-            const label = labels[index];
-            return label.length > 5 ? label.substr(0, 5) + '...' : label;
-          },
+          callback: (val, index) =>
+            labels[index].length > 7
+              ? labels[index].substr(0, 7) + '…'
+              : labels[index],
         },
       },
-      y: { beginAtZero: true },
+      y: {
+        grid: { display: false, drawBorder: false, drawTicks: false },
+        beginAtZero: true,
+      },
     },
   };
 

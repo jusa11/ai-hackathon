@@ -1,9 +1,13 @@
 import { useRef, useEffect } from 'react';
 import MetricChart from './MetricChart';
 
-const ChatWithLLM = ({ chatHistory, isChat, setIsChat, isLoading }) => {
+const ChatWithLLM = ({
+  chatHistory,
+  isChat,
+  setIsChat,
+  isLoading,
+}) => {
   const messagesEndRef = useRef(null);
-
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -17,7 +21,9 @@ const ChatWithLLM = ({ chatHistory, isChat, setIsChat, isLoading }) => {
     >
       <button
         className="fixed right-[5%] top-[3%] z-40 bg-white p-2 rounded-full shadow hover:bg-gray-100 transition"
-        onClick={() => setIsChat(false)}
+        onClick={() => {
+          setIsChat(false);
+        }}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

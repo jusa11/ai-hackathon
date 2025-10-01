@@ -1,6 +1,13 @@
-import UserCard from './UserCard';
+import UserCard from './Profile/UserCard';
 
-const SideBar = ({ collapsed, setCollapsed }) => {
+const SideBar = ({
+  collapsed,
+  setCollapsed,
+  isShowNotifications,
+  setIsShowNotifications,
+  setIsChat,
+  countNotifications,
+}) => {
   const chats = [
     'Новый чат',
     'Средний опыт сотрудников',
@@ -76,7 +83,13 @@ const SideBar = ({ collapsed, setCollapsed }) => {
         ))}
       </nav>
 
-      <UserCard collapsed={collapsed} />
+      <UserCard
+        collapsed={collapsed}
+        isShowNotifications={isShowNotifications}
+        setIsShowNotifications={setIsShowNotifications}
+        setIsChat={setIsChat}
+        countNotifications={countNotifications}
+      />
     </aside>
   );
 };
