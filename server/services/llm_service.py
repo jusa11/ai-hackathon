@@ -110,7 +110,7 @@ report_date - Отчетный период (Всегда последнее ч�
     result = model.run(prompt)
     json_str = result.alternatives[0].text
 
-    print(f"YandexGPT response: {json_str}")
+    print(f"JSON от LLM: {json_str}")
 
     return json_str
 

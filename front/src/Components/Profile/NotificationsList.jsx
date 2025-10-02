@@ -15,7 +15,7 @@ const NotificationsList = ({
   const loadNotifications = async () => {
     try {
       const res = await axios.get(
-        'http://localhost:8000/recomendations/query/'
+        'http://localhost:8000/recommendations/query/'
       );
       const newData = res.data?.recommendations || [];
       console.log(res.data.recommendations.length);
@@ -46,7 +46,11 @@ const NotificationsList = ({
   };
 
   useEffect(() => {
-    loadNotifications();
+    const timer = setTimeout(() => {
+      loadNotifications();
+    }, 3000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const toggleExpand = (index) => {
@@ -72,8 +76,7 @@ const NotificationsList = ({
           width="25px"
           fill="#434343"
         >
-          {' '}
-          <path d="m251.33-204.67-46.66-46.66L433.33-480 204.67-708.67l46.66-46.66L480-526.67l228.67-228.66 46.66 46.66L526.67-480l228.66 228.67-46.66 46.66L480-433.33 251.33-204.67Z" />{' '}
+          <path d="m251.33-204.67-46.66-46.66L433.33-480 204.67-708.67l46.66-46.66L480-526.67l228.67-228.66 46.66 46.66L526.67-480l228.66 228.67-46.66 46.66L480-433.33 251.33-204.67Z" />
         </svg>
       </button>
 
@@ -102,14 +105,12 @@ const NotificationsList = ({
               key={index}
               className={`flex items-start gap-4 p-5 rounded-2xl shadow-sm border ${colors} transition-all duration-300 hover:shadow-md hover:translate-y-[-2px]`}
             >
-              
               <div className="flex-shrink-0">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-lg shadow-md">
                   🤖
                 </div>
               </div>
 
-             
               <div className="flex flex-col flex-1">
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-sm font-semibold text-gray-900">
@@ -157,7 +158,7 @@ const NotificationsList = ({
         })
       ) : (
         <div className="text-center text-gray-500 py-10 italic">
-          Уведомлений пока нет 
+          Уведомлений пока нет
         </div>
       )}
     </div>

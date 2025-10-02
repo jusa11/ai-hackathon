@@ -4,6 +4,8 @@ from schemas import UserQuery
 from services import llm_service, analytics_service
 from utils import parse_llm, handle_query
 from services.db_service import get_db
+import datetime
+import json
 
 router = APIRouter()
 
@@ -14,5 +16,15 @@ def analytics_query(body: UserQuery, db: Session = Depends(get_db)):
 
     llm_response = llm_service.askYandexGPT(body.user_query)
     parsed = parse_llm.parse_llm_json(llm_response)
+    result = handle_query.handle_user_query(parsed, df, body.user_query)
+
+    record = {
+        "timestamp": datetime.datetime.now().isoformat(),
+        "query": body.user_query,
+        "response": str(result)
+    }
+    with open("user_queries.jsonl", "a", encoding="utf-8") as f:
+        f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
     print(f"LLM: {handle_query.handle_user_query(parsed, df, body.user_query)}")
-    return handle_query.handle_user_query(parsed, df, body.user_query)
+    return result

@@ -40,7 +40,7 @@ def recommend_fte(df):
         elif value < 0.7:
             recs.append({
                 "level": "info",
-                "message": f"ℹВ {dept} низкая загрузка (FTE={value}), можно перераспределить ресурсы"
+                "message": f"В {dept} низкая загрузка (FTE={value}), можно перераспределить ресурсы"
             })
     return recs
 

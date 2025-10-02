@@ -35,6 +35,7 @@ const Content = ({
     try {
       const res = await axios.get('http://localhost:8000/metric/random');
       setMetrics(res.data);
+      console.log(res.data);
       setMetricIsLoading(false);
 
       const bigRes = await axios.get('http://localhost:8000/metric/big');

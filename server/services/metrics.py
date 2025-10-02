@@ -10,8 +10,8 @@ METRICS = {
     "average-experience": {
         "func": analytics_service.get_average_experience,
         "has_plot": False,
-        "title": "Средний опыт сотрудников в том числе с фильтрами и группировками, например по возрасту, полу и т.д",
-        "description": "Вычисляет средний стаж работы сотрудников в компании"
+        "title": "Средний опыт сотрудников",
+        "description": "Вычисляет средний стаж работы сотрудников в компании в том числе с фильтрами и группировками, например по возрасту, полу и т.д"
     },
     "average-age": {
         "func": analytics_service.get_average_fullyears,
@@ -23,6 +23,7 @@ METRICS = {
         "func": analytics_service.get_count_by_sex,
         "title": "Количество сотрудников по полу",
         "has_plot": True,
+        "flat_result": True,
         "type_chart": 'pie',
         "description": "Считает количество мужчин и женщин в компании"
     },
@@ -63,6 +64,7 @@ METRICS = {
         "func": analytics_service.get_count_by_work_form,
         "has_plot": True,
         "type_chart": 'pie',
+        "flat_result": True,
         "title": "Количество сотрудников по форме работы офис/удаленка",
         "description": "Считает, сколько сотрудников работают в офисе и сколько удалённо"
     },
@@ -82,6 +84,7 @@ METRICS = {
         "func": analytics_service.get_turnover,
         "has_plot": True,
         "title": "Текучесть кадров",
+        "big": True,
         "description": "Текучесть кадров (%), с учётом фильтров, периода и группировки"
     },
 
@@ -96,6 +99,7 @@ METRICS = {
         "func": analytics_service.get_work_form_distribution,
         "has_plot": True,
         "type_chart": 'pie',
+        "flat_result": True,
         "title": "Доля сотрудников по формам работы - офис/удаленка",
         "description": "Показывает процентное соотношение сотрудников в офисе и удалённо"
     },
@@ -104,6 +108,7 @@ METRICS = {
         "has_plot": True,
         "type_chart": 'bar',
         "title": "Количество сотрудников",
+        "big": True,
         "description": "Количество сотрудников с учётом фильтров, периода и группировки (по сервисам, департаментам, отделам, месяцам, полу и тд)"
     },
     "total-employees": {
@@ -123,13 +128,14 @@ METRICS = {
         "func": analytics_service.get_high_turnover_departments,
         "has_plot": True,
         "type_chart": 'bar',
+        "big": True,
         "title": "Отделы с самой высокой текучестью кадров",
         "description": "Показывает  отделы с самой высокой текучестью кадров"
     },
     "turnover-trend": {
         "func": analytics_service.get_turnover_trend,
         "has_plot": True,
-        "type_chart": 'bar',
+        "type_chart": 'line',
         "title": "Динамика текучести кадров",
         "description": "Показывает динамику текучести кадров"
     },
@@ -158,7 +164,7 @@ METRICS = {
         "func": analytics_service.get_hiring_trends_by_department,
         "has_plot": True,
         "type_chart": 'bar',
-        "title": "Тренд найма по отделам по месяцам",
+        "title": "Тренд найма по отделам",
         "description": "Показывает как меняется найм по отделам"
     },
 }

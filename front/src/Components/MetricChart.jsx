@@ -4,23 +4,27 @@ import {
   LinearScale,
   BarElement,
   ArcElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Bar, Pie } from 'react-chartjs-2';
+import { Bar, Pie, Line } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
   ArcElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend
 );
 
-const MetricChart = ({ data, big }) => {
+const MetricChart = ({ data }) => {
   const MAX_ITEMS = 20;
   const fullLabels = Object.keys(data.result || {});
   const fullValues = Object.values(data.result || {});
@@ -40,7 +44,7 @@ const MetricChart = ({ data, big }) => {
     datasets: [
       {
         data: values,
-        backgroundColor: [
+        backgroundColor: data.type_chart === 'line' ? 'rgba(92, 116, 240, 0.2)' : [
           '#8EC9DB',
           '#5C74F0',
           '#A3D5F7',
@@ -48,10 +52,12 @@ const MetricChart = ({ data, big }) => {
           '#B3E0FF',
           '#4F6CE0',
         ],
-        borderColor: '#fff',
-        borderWidth: 2,
-        borderRadius: 8, 
-        hoverOffset: 8, 
+        borderColor: data.type_chart === 'line' ? '#5C74F0' : '#fff',
+        borderWidth: data.type_chart === 'line' ? 3 : 2,
+        borderRadius: 8,
+        hoverOffset: 8,
+        tension: data.type_chart === 'line' ? 0.4 : 0,
+        pointRadius: data.type_chart === 'line' ? 4 : 0,
       },
     ],
   };
@@ -64,16 +70,16 @@ const MetricChart = ({ data, big }) => {
       tooltip: {
         mode: 'index',
         intersect: false,
-        backgroundColor: 'rgba(30, 58, 138, 0.9)', 
-        titleColor: '#ffffff', 
-        bodyColor: '#ffffff', 
+        backgroundColor: 'rgba(30, 58, 138, 0.9)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
         borderColor: '#3B82F6',
         borderWidth: 1,
-        cornerRadius: 8, 
-        padding: 10, 
+        cornerRadius: 8,
+        padding: 10,
       },
     },
-    scales: {
+    scales: data.type_chart === 'pie' ? {} : {
       x: {
         grid: { display: false, drawBorder: false, drawTicks: false },
         ticks: {
@@ -90,11 +96,13 @@ const MetricChart = ({ data, big }) => {
     },
   };
 
-  return data.type_chart === 'pie' ? (
-    <Pie data={chartData} options={options} />
-  ) : (
-    <Bar data={chartData} options={options} />
-  );
+  if (data.type_chart === 'pie') {
+    return <Pie data={chartData} options={options} />;
+  } else if (data.type_chart === 'line') {
+    return <Line data={chartData} options={options} />;
+  } else {
+    return <Bar data={chartData} options={options} />;
+  }
 };
 
 export default MetricChart;

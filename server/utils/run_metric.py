@@ -1,6 +1,7 @@
 from typing import Callable, List, Dict, Any
 import pandas as pd
 from utils.apply_filters_and_timeframe import apply_filters_and_timeframe
+from services import metrics
 
 
 def safe_serialize_result(result):
@@ -16,7 +17,7 @@ def safe_serialize_result(result):
         return [safe_serialize_result(i) for i in result]
     elif isinstance(result, (float, int)):
         return float(result)
-    elif hasattr(result, "item"):  # np.float64
+    elif hasattr(result, "item"):  
         return float(result.item())
     else:
         return result
@@ -28,15 +29,19 @@ def run_metric(
     filters: Dict = {},
     timeframe: Dict = {},
     group_by: List[str] = [],
-    type_chart: str = "bar"
+    metric_name: str | None = None
 ) -> Dict[str, Any]:
-    """Запуск метрики с фильтрами, группировкой и периодом."""
-    
-    
-    
+
     df_filtered = apply_filters_and_timeframe(df, filters, timeframe)
     if df_filtered.empty:
-        return {"result": {}, "type_chart": type_chart, "has_plot": False}
+        return {"result": {}, "type_chart": None, "has_plot": False}
+
+    flat_result = False
+    if metric_name and metric_name in metrics.METRICS:
+        flat_result = metrics.METRICS[metric_name].get("flat_result", False)
+
+    if flat_result:
+        group_by = []
 
     if group_by:
         result = {}
@@ -56,8 +61,12 @@ def run_metric(
             result = None
 
     result = safe_serialize_result(result)
-    has_plot = True if result else False
 
-
+    has_plot = False
+    type_chart = None
+    if metric_name and metric_name in metrics.METRICS:
+        meta = metrics.METRICS[metric_name]
+        has_plot = meta.get("has_plot", False)
+        type_chart = meta.get("type_chart")
 
     return {"result": result, "type_chart": type_chart, "has_plot": has_plot}

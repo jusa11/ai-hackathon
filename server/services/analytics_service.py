@@ -31,11 +31,9 @@ def get_average_experience(df: pd.DataFrame, filters: dict = {}, timeframe: dict
     if "experience" not in df_filtered.columns or df_filtered.empty:
         return {}
 
-    # Если run_metric будет передавать group_by, то словарь создастся там.
     avg_exp = df_filtered["experience"].mean()
 
-    # Возвращаем словарь для унификации (ключ "all" для несгруппированных случаев)
-    return {"all": round(avg_exp, 2)}
+    return {" Средний опыт": round(avg_exp, 2)}
 
 
 # Средний возраст сотрудников
@@ -59,7 +57,7 @@ def get_average_fullyears(df: pd.DataFrame, filters: dict = {}, timeframe: dict 
     avg_fullyears = df_filtered["fullyears"].mean()
 
     # Всегда возвращаем словарь для унификации
-    return {"all": round(avg_fullyears, 2)}
+    return {"Средний стаж": round(avg_fullyears, 2)}
 
 
 # Количество сотрудников по полу
@@ -68,12 +66,7 @@ def get_average_fullyears(df: pd.DataFrame, filters: dict = {}, timeframe: dict 
 def get_count_by_sex(df: pd.DataFrame, filters: dict = {}, timeframe: dict = {}) -> dict:
     """
     Количество сотрудников по полу с учётом фильтров и периода.
-
-    filters: {"department_3": "Department-98", "service": "Крауд", ...}
-    timeframe: {"month": 8} или {"months": [7,8,9]} или {"start": "YYYY-MM-DD", "end": "YYYY-MM-DD"}
-
-    Возвращает словарь {"M": count_male, "F": count_female}
-    или сгруппированные данные через run_metric.
+    Всегда возвращает плоский словарь {"M": count_male, "F": count_female}.
     """
     df_filtered = apply_filters_and_timeframe(df, filters, timeframe)
 
@@ -152,7 +145,7 @@ def get_average_fte(
     if group_by:
         return df.groupby(group_by)["fte"].mean().round(2).to_dict()
 
-    return {"all": round(df["fte"].mean(), 2)}
+    return {"Средний FTE": round(df["fte"].mean(), 2)}
 
 
 def get_fired_count(
@@ -264,7 +257,7 @@ def get_fte_sum(
     if group_by:
         return df.groupby(group_by)["fte"].sum().round(2).to_dict()
 
-    return {"all": round(df["fte"].sum(), 2)}
+    return {"Сумма ставок FTE": round(df["fte"].sum(), 2)}
 
 
 def get_fte_mean(
@@ -292,7 +285,7 @@ def get_fte_mean(
     if group_by:
         return df.groupby(group_by)["fte"].mean().round(2).to_dict()
 
-    return {"all": round(df["fte"].mean(), 2)}
+    return {"Среднее значение ставок FTE": round(df["fte"].mean(), 2)}
 
 
 def get_turnover(
@@ -334,7 +327,7 @@ def get_turnover(
     if group_by:
         return {key: _calc_turnover(g) for key, g in df.groupby(group_by)}
 
-    return {"all": _calc_turnover(df)}
+    return {"Текучесть кадров (%)": _calc_turnover(df)}
 
 
 def get_hires_and_fires_share(
@@ -368,11 +361,9 @@ def get_hires_and_fires_share(
         total_hired = sub_df["hirecount"].sum()
         total_fired = sub_df["firecount"].sum()
 
-        # Берём уникальных сотрудников за период
         if "employee_id" in sub_df.columns:
             total_employees = sub_df["employee_id"].nunique()
         else:
-            # Если идентификаторов нет, fallback на количество строк (менее точно)
             total_employees = len(sub_df)
 
         if total_employees == 0:
@@ -527,12 +518,10 @@ def get_hires_to_cover_turnover(
         return {}
 
     def _calc_needed_hires(sub_df: pd.DataFrame) -> dict:
-        # Группируем по месяцу и суммируем количество увольнений
         monthly_fired = sub_df.groupby(sub_df["report_date"].dt.to_period("M"))[
             "firecount"].sum()
         if monthly_fired.empty:
             return {"needed_hires": 0}
-        # Среднее увольнений в месяц
         avg_monthly_fired = round(monthly_fired.mean())
         return {"needed_hires": avg_monthly_fired}
 
@@ -570,7 +559,6 @@ def get_high_turnover_departments(
     if df_filtered.empty:
         return {}
 
-    # Расчёт текучести по отделам
     def _calc_turnover(sub_df: pd.DataFrame) -> float:
         total_fired = sub_df["firecount"].sum()
         avg_employees = sub_df.groupby(
@@ -591,7 +579,7 @@ def get_turnover_trend(
     df: pd.DataFrame,
     filters: dict = {},
     timeframe: dict = {},
-    period: str = "M"  # "M" — по месяцам, "Y" — по годам
+    period: str = "M"
 ) -> dict:
     """
     Динамика текучести кадров по выбранному периоду (месяц или год).
@@ -611,7 +599,6 @@ def get_turnover_trend(
     if df_filtered.empty:
         return {}
 
-    # Добавляем период для группировки
     df_filtered["period"] = df_filtered["report_date"].dt.to_period(period)
 
     turnover_dict = {}
@@ -636,14 +623,12 @@ def get_at_risk_departments(df: pd.DataFrame, filters: dict = {}, timeframe: dic
     if df_filtered.empty:
         return {}
 
-    # Считаем метрики по отделам
     grouped = df_filtered.groupby("department_3").agg(
         turnover=("firecount", "mean"),
         avg_fte=("fte", "mean"),
         avg_exp=("experience", "mean")
     ).reset_index()
 
-    # Медианные значения для фильтрации
     turnover_median = grouped["turnover"].median()
     fte_median = grouped["avg_fte"].median()
     exp_median = grouped["avg_exp"].median()
@@ -675,7 +660,6 @@ def get_most_stable_departments(df: pd.DataFrame, filters: dict = {}, timeframe:
     if df_filtered.empty:
         return {}
 
-    # Пороговые значения
     turnover_threshold = 0.2  # текучесть < 20%
     experience_threshold = 5.0  # средний стаж > 5 лет
 
@@ -697,49 +681,32 @@ def get_most_stable_departments(df: pd.DataFrame, filters: dict = {}, timeframe:
     return result
 
 
-def get_firing_trends_by_age(df: pd.DataFrame, filters: dict = {}, timeframe: dict = {}) -> Dict:
+def get_firing_trends_by_age(df: pd.DataFrame, filters: dict = {}, timeframe: dict = {}) -> dict:
     """
-    Тренд увольнений по возрастным группам по месяцам.
-    firecount (0/1), age_category, report_date (дата отчета)
+    Тренд увольнений по возрастным группам.
+    Возвращает словарь вида {"18-25": sum, "25-40": sum, ...}
     """
     df_filtered = apply_filters_and_timeframe(df, filters, timeframe)
-    if df_filtered.empty:
+    if df_filtered.empty or "age_category" not in df_filtered.columns or "firecount" not in df_filtered.columns:
         return {}
 
-    # Преобразуем дату в год-месяц
-    df_filtered["year_month"] = df_filtered["report_date"].dt.to_period(
-        "M").astype(str)
+    grouped = df_filtered.groupby("age_category")["firecount"].sum()
 
-    grouped = df_filtered.groupby(["year_month", "age_category"])
-    result = grouped["firecount"].sum().unstack(
-        fill_value=0).to_dict(orient="index")
-
-    # Преобразуем все значения в int
-    for month in result:
-        result[month] = {age: int(val) for age, val in result[month].items()}
-
+    result = {age: int(val) for age, val in grouped.items()}
     return result
 
 
-def get_hiring_trends_by_department(df: pd.DataFrame, filters: dict = {}, timeframe: dict = {}) -> Dict:
+def get_hiring_trends_by_department(df: pd.DataFrame, filters: dict = {}, timeframe: dict = {}) -> dict:
     """
-    Тренд найма по отделам по месяцам.
+    Тренд найма по отделам.
     hirecount (0/1), department_3, report_date (дата отчета)
     """
     df_filtered = apply_filters_and_timeframe(df, filters, timeframe)
-    if df_filtered.empty:
-        return {}
+    if df_filtered.empty or "department_3" not in df_filtered.columns or "hirecount" not in df_filtered.columns:
+        return {"result": {}, "type_chart": "bar", "has_plot": True}
 
-    # Преобразуем дату в год-месяц
-    df_filtered["year_month"] = df_filtered["report_date"].dt.to_period(
-        "M").astype(str)
+    grouped = df_filtered.groupby("department_3")["hirecount"].sum()
 
-    grouped = df_filtered.groupby(["year_month", "department_3"])
-    result = grouped["hirecount"].sum().unstack(
-        fill_value=0).to_dict(orient="index")
+    result = {dept: int(val) for dept, val in grouped.items()}
 
-    # Преобразуем все значения в int
-    for month in result:
-        result[month] = {dept: int(val) for dept, val in result[month].items()}
-
-    return result
+    return {"result": result, "type_chart": "bar", "has_plot": True}
