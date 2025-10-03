@@ -9,7 +9,6 @@ const SideBar = ({
   countNotifications,
 }) => {
   const chats = [
-    'Новый чат',
     'Средний опыт сотрудников',
     'Текучесть кадров',
     'Количество увольнений...',
@@ -60,6 +59,20 @@ const SideBar = ({
       </div>
 
       <nav className="mt-4 space-y-2 text-sm">
+        <div className="relative group">
+          <button className="p-2 hover:bg-zinc-800 gap- rounded-lg w-full text-left flex">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24px"
+              viewBox="0 -960 960 960"
+              width="24px"
+              fill="#FFFFFF"
+            >
+              <path d="M80-80v-720q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240L80-80Zm126-240h594v-480H160v525l46-45Zm-46 0v-480 480Z" />
+            </svg>
+            Новый чат
+          </button>
+        </div>
         {chats.map((chat, idx) => (
           <div key={idx} className="relative group">
             <button className="p-2 hover:bg-zinc-800 rounded-lg w-full text-left">

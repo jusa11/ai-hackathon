@@ -17,15 +17,22 @@ const Content = ({
   const [isLoading, setIsLoading] = useState(false);
   const [metricIsLoading, setMetricIsLoading] = useState(false);
   const [bigMetricIsLoading, setBigMetricIsLoading] = useState(false);
-  const [chatHistory, setChatHistory] = useState([
-    {
-      id: 1,
-      type: 'bot',
-      text: 'Привет! Я ваш HR-бот. Задайте вопрос о метриках сотрудников.',
-      result: null,
-      type_chart: null,
-    },
-  ]);
+
+  const [chatHistory, setChatHistory] = useState(() => {
+  // Загружаем историю из localStorage при первом рендере
+  const saved = localStorage.getItem('chatHistory');
+  return saved
+    ? JSON.parse(saved)
+    : [
+        {
+          id: 1,
+          type: 'bot',
+          text: 'Привет! Я ваш HR-бот. Задайте вопрос о метриках сотрудников.',
+          result: null,
+          type_chart: null,
+        },
+      ];
+});
 
   const contentRef = useRef(null);
 
@@ -35,7 +42,6 @@ const Content = ({
     try {
       const res = await axios.get('http://localhost:8000/metric/random');
       setMetrics(res.data);
-      console.log(res.data);
       setMetricIsLoading(false);
 
       const bigRes = await axios.get('http://localhost:8000/metric/big');
@@ -58,8 +64,13 @@ const Content = ({
     }
   }, [chatHistory]);
 
+  // Сохраняем историю в localStorage при каждом изменении
+  useEffect(() => {
+    localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+  }, [chatHistory]);
+
   const handleChat = () => {
-    isChat ? setIsChat(false) : setIsChat(true);
+    setIsChat((prev) => !prev);
   };
 
   return (
@@ -97,12 +108,14 @@ const Content = ({
 
         <ChatWithLLM
           chatHistory={chatHistory}
+          setChatHistory={setChatHistory}
           isChat={isChat}
           setIsChat={setIsChat}
           isLoading={isLoading}
           isShowNotifications={isShowNotifications}
           setIsShowNotifications={setIsShowNotifications}
         />
+
         <div className={`${isShowNotifications ? 'w-full' : 'hidden'}`}>
           <NotificationsList
             isShowNotifications={isShowNotifications}
