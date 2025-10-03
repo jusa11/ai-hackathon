@@ -121,7 +121,7 @@ METRICS = {
         "func": analytics_service.get_hires_to_cover_turnover,
         "has_plot": True,
         "type_chart": 'bar',
-        "title": "Доля новых наймов и увольнений",
+        "title": "Покрытие оттока",
         "description": "Показывает сколько сотрудников нужно нанимать каждый месяц, чтобы покрыть отток"
     },
     "high-turnover-departments": {

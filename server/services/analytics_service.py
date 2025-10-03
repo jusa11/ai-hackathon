@@ -5,9 +5,6 @@ import crud
 from utils.apply_filters_and_timeframe import apply_filters_and_timeframe
 
 
-# --- функции аналитики ---
-
-
 def get_employees_df(db, limit: int | None = 100):
     employees = crud.get_employees(db, skip=0, limit=limit)
     if not employees:
@@ -15,7 +12,6 @@ def get_employees_df(db, limit: int | None = 100):
     return pd.DataFrame([e.__dict__ for e in employees])
 
 
-# Средний опыт
 def get_average_experience(df: pd.DataFrame, filters: dict = {}, timeframe: dict = {}) -> dict:
     """
     Средний опыт сотрудников с учётом фильтров и периода.
@@ -36,9 +32,6 @@ def get_average_experience(df: pd.DataFrame, filters: dict = {}, timeframe: dict
     return {" Средний опыт": round(avg_exp, 2)}
 
 
-# Средний возраст сотрудников
-
-
 def get_average_fullyears(df: pd.DataFrame, filters: dict = {}, timeframe: dict = {}) -> dict:
     """
     Средний полный стаж (в годах) сотрудников с учётом фильтров и периода.
@@ -56,11 +49,7 @@ def get_average_fullyears(df: pd.DataFrame, filters: dict = {}, timeframe: dict 
 
     avg_fullyears = df_filtered["fullyears"].mean()
 
-    # Всегда возвращаем словарь для унификации
     return {"Средний стаж": round(avg_fullyears, 2)}
-
-
-# Количество сотрудников по полу
 
 
 def get_count_by_sex(df: pd.DataFrame, filters: dict = {}, timeframe: dict = {}) -> dict:
@@ -71,13 +60,13 @@ def get_count_by_sex(df: pd.DataFrame, filters: dict = {}, timeframe: dict = {})
     df_filtered = apply_filters_and_timeframe(df, filters, timeframe)
 
     if "sex" not in df_filtered.columns or df_filtered.empty:
-        return {"M": 0, "F": 0}
+        return {"Мужчины": 0, "Женщины": 0}
 
     counts = df_filtered["sex"].str.upper().value_counts()
 
     return {
-        "M": int(counts.get("M", 0)),
-        "F": int(counts.get("F", 0))
+        "Мужчины": int(counts.get("M", 0)),
+        "Женщины": int(counts.get("F", 0))
     }
 
 
@@ -371,7 +360,7 @@ def get_hires_and_fires_share(
 
         hire_rate = round((total_hired / total_employees) * 100, 2)
         fire_rate = round((total_fired / total_employees) * 100, 2)
-        return {"hire_rate": hire_rate, "fire_rate": fire_rate}
+        return {"Найм": hire_rate, "Увольнения": fire_rate}
 
     if group_by:
         result = {}
@@ -406,17 +395,17 @@ def get_work_form_distribution(
 
     df_filtered = apply_filters_and_timeframe(df, filters, timeframe)
     if df_filtered.empty:
-        return {"remote": 0.0, "office": 0.0}
+        return {"Удаленка": 0.0, "Офис": 0.0}
 
     def _calc_distribution(sub_df: pd.DataFrame) -> dict:
         total = len(sub_df)
         if total == 0:
-            return {"remote": 0.0, "office": 0.0}
+            return {"Удаленка": 0.0, "Офис": 0.0}
         remote_count = (sub_df["work_form"] == 1).sum()
         office_count = (sub_df["work_form"] == 0).sum()
         return {
-            "remote": round((remote_count / total) * 100, 2),
-            "office": round((office_count / total) * 100, 2),
+            "Удаленка": round((remote_count / total) * 100, 2),
+            "Офис": round((office_count / total) * 100, 2),
         }
 
     if group_by:
@@ -521,9 +510,9 @@ def get_hires_to_cover_turnover(
         monthly_fired = sub_df.groupby(sub_df["report_date"].dt.to_period("M"))[
             "firecount"].sum()
         if monthly_fired.empty:
-            return {"needed_hires": 0}
+            return {"Количество": 0}
         avg_monthly_fired = round(monthly_fired.mean())
-        return {"needed_hires": avg_monthly_fired}
+        return {"Количество": avg_monthly_fired}
 
     if group_by:
         result = {}
@@ -643,9 +632,9 @@ def get_at_risk_departments(df: pd.DataFrame, filters: dict = {}, timeframe: dic
         ):
             dept = row["department_3"]
             result[dept] = {
-                "turnover": round(row["turnover"], 2),
-                "avg_fte": round(row["avg_fte"], 2),
-                "avg_experience": round(row["avg_exp"], 2)
+                "Текучесть": round(row["turnover"], 2),
+                "Средний FTE": round(row["avg_fte"], 2),
+                "Средний опыт": round(row["avg_exp"], 2)
             }
 
     return result
@@ -674,8 +663,8 @@ def get_most_stable_departments(df: pd.DataFrame, filters: dict = {}, timeframe:
 
         if turnover < turnover_threshold and avg_exp is not None and avg_exp > experience_threshold:
             result[dept] = {
-                "turnover": round(turnover, 2),
-                "avg_experience": round(avg_exp, 2)
+                "Текучесть": round(turnover, 2),
+                "Средний опыт": round(avg_exp, 2)
             }
 
     return result
@@ -703,10 +692,10 @@ def get_hiring_trends_by_department(df: pd.DataFrame, filters: dict = {}, timefr
     """
     df_filtered = apply_filters_and_timeframe(df, filters, timeframe)
     if df_filtered.empty or "department_3" not in df_filtered.columns or "hirecount" not in df_filtered.columns:
-        return {"result": {}, "type_chart": "bar", "has_plot": True}
+        return {},
 
     grouped = df_filtered.groupby("department_3")["hirecount"].sum()
 
     result = {dept: int(val) for dept, val in grouped.items()}
 
-    return {"result": result, "type_chart": "bar", "has_plot": True}
+    return result

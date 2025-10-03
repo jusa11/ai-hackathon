@@ -24,7 +24,7 @@ ChartJS.register(
   Legend
 );
 
-const MetricChart = ({ data }) => {
+const MetricChart = ({ data, big }) => {
   const MAX_ITEMS = 20;
   const fullLabels = Object.keys(data.result || {});
   const fullValues = Object.values(data.result || {});
@@ -44,14 +44,17 @@ const MetricChart = ({ data }) => {
     datasets: [
       {
         data: values,
-        backgroundColor: data.type_chart === 'line' ? 'rgba(92, 116, 240, 0.2)' : [
-          '#8EC9DB',
-          '#5C74F0',
-          '#A3D5F7',
-          '#7AA7F2',
-          '#B3E0FF',
-          '#4F6CE0',
-        ],
+        backgroundColor:
+          data.type_chart === 'line'
+            ? 'rgba(92, 116, 240, 0.2)'
+            : [
+                '#8EC9DB',
+                '#5C74F0',
+                '#A3D5F7',
+                '#7AA7F2',
+                '#B3E0FF',
+                '#4F6CE0',
+              ],
         borderColor: data.type_chart === 'line' ? '#5C74F0' : '#fff',
         borderWidth: data.type_chart === 'line' ? 3 : 2,
         borderRadius: 8,
@@ -79,21 +82,24 @@ const MetricChart = ({ data }) => {
         padding: 10,
       },
     },
-    scales: data.type_chart === 'pie' ? {} : {
-      x: {
-        grid: { display: false, drawBorder: false, drawTicks: false },
-        ticks: {
-          callback: (val, index) =>
-            labels[index].length > 7
-              ? labels[index].substr(0, 7) + '…'
-              : labels[index],
-        },
-      },
-      y: {
-        grid: { display: false, drawBorder: false, drawTicks: false },
-        beginAtZero: true,
-      },
-    },
+    scales:
+      data.type_chart === 'pie'
+        ? {}
+        : {
+            x: {
+              grid: { display: false, drawBorder: false, drawTicks: false },
+              ticks: {
+                callback: (val, index) =>
+                  labels[index].length > 7
+                    ? labels[index].substr(0, 7) + '…'
+                    : labels[index],
+              },
+            },
+            y: {
+              grid: { display: false, drawBorder: false, drawTicks: false },
+              beginAtZero: true,
+            },
+          },
   };
 
   if (data.type_chart === 'pie') {
