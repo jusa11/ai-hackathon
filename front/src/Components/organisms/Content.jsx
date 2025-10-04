@@ -17,6 +17,7 @@ const Content = ({
   const [isLoading, setIsLoading] = useState(false);
   const [metricIsLoading, setMetricIsLoading] = useState(false);
   const [bigMetricIsLoading, setBigMetricIsLoading] = useState(false);
+  const API_URL = import.meta.env.VITE_APP_API_URL;
 
   const [chatHistory, setChatHistory] = useState(() => {
     // Загружаем историю из localStorage при первом рендере
@@ -40,11 +41,11 @@ const Content = ({
     setMetricIsLoading(true);
     setBigMetricIsLoading(true);
     try {
-      const res = await axios.get('http://APP_API_URL/metric/random');
+      const res = await axios.get(`http://${API_URL}/metric/random`);
       setMetrics(res.data);
       setMetricIsLoading(false);
 
-      const bigRes = await axios.get('http://APP_API_URL/metric/big');
+      const bigRes = await axios.get(`http://${API_URL}/metric/big`);
       setBigMetric(bigRes.data);
       setBigMetricIsLoading(false);
     } catch (error) {
