@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import AutoResizeTextarea from '../atoms/AutoResizeTextArea';
+const API_URL = import.meta.env.VITE_APP_API_URL;
 
 const FormQuery = ({ addMessage, setIsLoading }) => {
   const [query, setQuery] = useState('');
@@ -22,7 +23,7 @@ const FormQuery = ({ addMessage, setIsLoading }) => {
     setIsLoading(true);
 
     try {
-      const res = await axios.post('http://APP_API_URL/llm/query', {
+      const res = await axios.post(`http://${API_URL}/llm/query`, {
         user_query: query,
       });
 

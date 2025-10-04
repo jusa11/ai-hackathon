@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-
+const API_URL = import.meta.env.VITE_APP_API_URL;
 
 const NotificationsList = ({
   isShowNotifications,
@@ -15,7 +15,7 @@ const NotificationsList = ({
 
   const loadNotifications = async () => {
     try {
-      const res = await axios.get('http://APP_API_URL/recommendations/query');
+      const res = await axios.get(`http://${API_URL}/recommendations/query`);
       const newData = res.data?.recommendations || [];
       console.log(res.data.recommendations.length);
       setCountNotifications(res.data.recommendations.length);
