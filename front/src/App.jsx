@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import Header from './Components/Header';
-import SideBar from './Components/SideBar';
-import Content from './Components/Content';
-import ShareOverlay from './Components/ShareOverlay';
 import { ToastContainer, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Header from './Components/organisms/Header';
+import SideBar from './Components/organisms/SideBar';
+import Content from './Components/organisms/Content';
+import ShareOverlay from './Components/atoms/ShareOverlay';
 
 function App() {
   const [collapsed, setCollapsed] = useState(false);
