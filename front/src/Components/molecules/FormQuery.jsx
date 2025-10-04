@@ -22,11 +22,10 @@ const FormQuery = ({ addMessage, setIsLoading }) => {
     setIsLoading(true);
 
     try {
-      const res = await axios.post('http://localhost:8000/llm/query', {
+      const res = await axios.post('http://server:8000/llm/query', {
         user_query: query,
       });
 
-      // const res = await axios.get('http://localhost:8000/metric/random');
       console.log(res.data);
       const botMessage = {
         id: Date.now() + 1,

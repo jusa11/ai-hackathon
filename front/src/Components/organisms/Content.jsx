@@ -3,7 +3,7 @@ import axios from 'axios';
 import FormQuery from '../molecules/FormQuery';
 import MetricCard from '../molecules/MetricCard';
 import ChatWithLLM from './ChatWithLLM';
-import NotificationsList from '../molecules/NotificationsList'
+import NotificationsList from '../molecules/NotificationsList';
 
 const Content = ({
   isShowNotifications,
@@ -40,11 +40,11 @@ const Content = ({
     setMetricIsLoading(true);
     setBigMetricIsLoading(true);
     try {
-      const res = await axios.get('http://localhost:8000/metric/random');
+      const res = await axios.get('http://server:8000/metric/random');
       setMetrics(res.data);
       setMetricIsLoading(false);
 
-      const bigRes = await axios.get('http://localhost:8000/metric/big');
+      const bigRes = await axios.get('http://server:8000/metric/big');
       setBigMetric(bigRes.data);
       setBigMetricIsLoading(false);
     } catch (error) {

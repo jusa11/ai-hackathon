@@ -15,7 +15,7 @@ const NotificationsList = ({
   const loadNotifications = async () => {
     try {
       const res = await axios.get(
-        'http://localhost:8000/recommendations/query/'
+        'http://server:8000/recommendations/query/'
       );
       const newData = res.data?.recommendations || [];
       console.log(res.data.recommendations.length);
