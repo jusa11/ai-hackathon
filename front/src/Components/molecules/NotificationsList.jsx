@@ -14,9 +14,7 @@ const NotificationsList = ({
 
   const loadNotifications = async () => {
     try {
-      const res = await axios.get(
-        'http://server:8000/recommendations/query/'
-      );
+      const res = await axios.get('http://APP_API_URL/recommendations/query');
       const newData = res.data?.recommendations || [];
       console.log(res.data.recommendations.length);
       setCountNotifications(res.data.recommendations.length);

@@ -22,7 +22,7 @@ const FormQuery = ({ addMessage, setIsLoading }) => {
     setIsLoading(true);
 
     try {
-      const res = await axios.post('http://server:8000/llm/query', {
+      const res = await axios.post('http://APP_API_URL/llm/query', {
         user_query: query,
       });
 
