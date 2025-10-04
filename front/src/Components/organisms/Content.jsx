@@ -40,11 +40,11 @@ const Content = ({
     setMetricIsLoading(true);
     setBigMetricIsLoading(true);
     try {
-      const res = await axios.get('http://server:8000/metric/random');
+      const res = await axios.get('http://APP_API_URL/metric/random');
       setMetrics(res.data);
       setMetricIsLoading(false);
 
-      const bigRes = await axios.get('http://server:8000/metric/big');
+      const bigRes = await axios.get('http://APP_API_URL/metric/big');
       setBigMetric(bigRes.data);
       setBigMetricIsLoading(false);
     } catch (error) {
