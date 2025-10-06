@@ -3,6 +3,8 @@
 **Описание проекта:**  
 Это умный помощник для анализа данных о сотрудниках компании. Он помогает HR-специалистам получать ответы на вопросы о персонале, текучести кадров, опыте сотрудников, распределении по департаментам, регионам, сервисам и формам работы, а также визуализировать данные в виде графиков. Бот отвечает на вопросы с учётом контекста предыдущих сообщений, поддерживая переписку.
 
+![скрин](https://downloader.disk.yandex.ru/preview/a826327e1bfb1a85f1c81a1599e923689579dc32b235434c7e5f93333928c3b8/68e3949f/2y_KlCHBDMz3y_WuLaRjjJEo1Ymh3fhHH548rH0tvGeZL3li8CUYM3bX_cqFoLzT4y_Z-y9cA0Nv1NFY4YbLoA%3D%3D?uid=0&filename=%D1%81%D0%BA%D1%80%D0%B8%D0%BD.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&owner_uid=0&tknv=v3&size=2048x2048)
+
 ## Возможности
 
 - **Интерактивный AI-чат**  
@@ -19,6 +21,8 @@
 
 - **Рекомендации по ключевым метрикам**  
   Сервис `auto_recommendations_service` оценивает критичность метрик и предоставляет советы HR в виде уведомлений для действий по удержанию персонала и улучшению корпоративной среды.
+
+![скрин](https://downloader.disk.yandex.ru/preview/f08d7dfaf5b671ec4ab31644ac30b880022ddb71c86f3524028722b83d8d10f5/68e39582/O9CBcc3XmGxgLtE4H0GQ0drOVvi2xa8DAVUFZIb3508xaz4I7cjtMCtPjklrR32T4i7dYOA2iNMTvYxlcAeskQ%3D%3D?uid=0&filename=%D1%81%D0%BA%D1%80%D0%B8%D0%BD2.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&owner_uid=0&tknv=v3&size=2048x2048)
 
 ## Технологии
 
