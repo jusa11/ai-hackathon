@@ -55,64 +55,64 @@
 # Структура проекта
 
 ## front/
-├── public/
-├── src/
-│   ├── Components/ 
-│   │   ├── atoms/
+├── public/  
+├── src/  
+│   ├── Components/  
+│   │   ├── atoms/  
 │   │   │   ├── AutoResizeTextArea.jsx — textarea с автоподстройкой  
 │   │   │   ├── NotificationsIcon.jsx — иконка уведомлений  
 │   │   │   ├── ShareOverlay.jsx — оверлей для шаринга  
 │   │   │   └── UserCard.jsx — карточка пользователя  
-│   │   ├── molecules/
+│   │   ├── molecules/  
 │   │   │   ├── FormQuery.jsx — форма ввода вопросов  
 │   │   │   ├── MetricCard.jsx — карточка метрики  
 │   │   │   ├── MetricChart.jsx — компонент графика метрики  
 │   │   │   └── NotificationsList.jsx — список уведомлений  
-│   │   ├── organisms/
+│   │   ├── organisms/  
 │   │   │   ├── ChatWithLLM.jsx — чат с AI  
 │   │   │   ├── Content.jsx — контейнер для графиков и чата  
-│   │   │   ├── Header.jsx — заголовок чата 
+│   │   │   ├── Header.jsx — заголовок чата  
 │   │   │   └── SideBar.jsx — боковое меню  
-│   ├── App.jsx
-│   ├── index.css
-│   └── main.jsx
-├── index.html
+│   ├── App.jsx  
+│   ├── index.css  
+│   └── main.jsx  
+├── index.html  
 
 ## server/
-├── modules/
-│   ├── analytics/ — функции расчета HR-метрик
-│   │   ├── analytics_service.py — расчёт метрик
-│   │   ├── metrics.py — список и описание всех метрик
-│   │   └── router.py — эндпоинты для метрик
-│   ├── charts/ — построение графиков (не используется, графики рисуются на фронте)
-│   │   ├── create_plot.py — функции построения графиков
-│   │   └── router.py — эндпоинты для графиков
-│   ├── llm/ — работа с AI
-│   │   ├── comment_service.py — комментарии LLM
-│   │   ├── define_metric_service.py — определение метрик по запросу
-│   │   └── router.py — эндпоинты AI
-│   ├── recommendations/ — рекомендации HR
-│   │   ├── recommendations_service.py — логика рекомендаций
-│   │   └── router.py — эндпоинты рекомендаций
-├── shared/ — общие утилиты и вспомогательные функции
-│   ├── utils/
-│   │   ├── apply_filters_and_timeframe.py — фильтры и временные рамки
-│   │   ├── handle_query.py — обработка запросов
-│   │   ├── metric_with_plot.py — объединение метрик и графиков
-│   │   ├── parse_llm.py — парсинг ответа AI (define_metric_service)
-│   │   ├── run_metric.py — универсальная функция run_metric
-│   │   └── auth.py — авторизация и работа с токенами
-│		├── cached_df_service.py — кэширование и хранение DataFrame
-│		├── crud.py — базовые CRUD операции
-│		├── database.py — подключение к PostgreSQL
-│		├── db_service.py — работа с базой данных
-│		├── employees.py — функции для работы с сотрудниками
-│		├── general_hr_summary_stub.py — заглушка в случае ошибки определения метрики от LLM (возвращает шаблон)
-│		├── models.py — SQLAlchemy модели
-│		├── schemas.py — Pydantic схемы для API
-├── main.py
-├── .env
-└── docker-compose.ym
+├── modules/  
+│   ├── analytics/ — функции расчета HR-метрик  
+│   │   ├── analytics_service.py — расчёт метрик  
+│   │   ├── metrics.py — список и описание всех метрик  
+│   │   └── router.py — эндпоинты для метрик  
+│   ├── charts/ — построение графиков (не используется, графики рисуются на фронте)  
+│   │   ├── create_plot.py — функции построения графиков  
+│   │   └── router.py — эндпоинты для графиков  
+│   ├── llm/ — работа с AI  
+│   │   ├── comment_service.py — комментарии LLM  
+│   │   ├── define_metric_service.py — определение метрик по запросу  
+│   │   └── router.py — эндпоинты AI  
+│   ├── recommendations/ — рекомендации HR  
+│   │   ├── recommendations_service.py — логика рекомендаций  
+│   │   └── router.py — эндпоинты рекомендаций  
+├── shared/ — общие утилиты и вспомогательные функции  
+│   ├── utils/  
+│   │   ├── apply_filters_and_timeframe.py — фильтры и временные рамки  
+│   │   ├── handle_query.py — обработка запросов  
+│   │   ├── metric_with_plot.py — объединение метрик и графиков  
+│   │   ├── parse_llm.py — парсинг ответа AI (define_metric_service)  
+│   │   ├── run_metric.py — универсальная функция run_metric  
+│   │   └── auth.py — авторизация и работа с токенами  
+│   ├── cached_df_service.py — кэширование и хранение DataFrame  
+│   ├── crud.py — базовые CRUD операции  
+│   ├── database.py — подключение к PostgreSQL  
+│   ├── db_service.py — работа с базой данных  
+│   ├── employees.py — функции для работы с сотрудниками  
+│   ├── general_hr_summary_stub.py — заглушка при ошибке определения метрики LLM  
+│   ├── models.py — SQLAlchemy модели  
+│   └── schemas.py — Pydantic схемы для API  
+├── main.py  
+├── .env  
+└── docker-compose.yml
 
 
 ## Возможные улучшения и дальнейшее развитие
